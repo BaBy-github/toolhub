@@ -24,10 +24,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20  # 指定 Node.js 版本为 20
-          cache: npm        # 启用 npm 缓存，加快安装速度
+          cache: pnpm        # 启用 pnpm 缓存，加快安装速度
 
-      # 3. 安装依赖（等价于 npm install，但 npm ci 更快、更稳定）
-      - run: npm ci
+      # 3. 安装依赖
+      - run: pnpm i
 
       # 4. 构建打包（Vite 会把代码打包到 dist 文件夹）
       - run: npm run build
