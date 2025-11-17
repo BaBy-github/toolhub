@@ -17,22 +17,13 @@ jobs:
   build:
     runs-on: ubuntu-latest  # 在 GitHub 提供的 Ubuntu 最新虚拟机上运行
     steps:
-      # 1. 检出（checkout）代码
       - uses: actions/checkout@v4
-
-      # 2. 安装 Node.js 环境
       - uses: actions/setup-node@v4
         with:
           node-version: 20  # 指定 Node.js 版本为 20
-          cache: pnpm        # 启用 pnpm 缓存，加快安装速度
-
-      # 3. 安装依赖
+      - run: npm install -g pnpm
       - run: pnpm i
-
-      # 4. 构建打包（Vite 会把代码打包到 dist 文件夹）
       - run: npm run build
-
-      # 5. 上传打包好的 dist 文件夹，作为 artifact 供后续部署使用
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist  # 指定要上传的文件夹
