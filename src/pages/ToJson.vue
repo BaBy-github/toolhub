@@ -30,7 +30,14 @@ function beginDrag(e: MouseEvent | TouchEvent) {
   if (!box) return
   const clamp = (v: number, min = 0.2, max = 0.8) => Math.min(max, Math.max(min, v))
   moveHandler = (ev: MouseEvent | TouchEvent) => {
-    const clientX = 'touches' in ev ? ev.touches[0].clientX : (ev as MouseEvent).clientX
+    let clientX: number
+    if ('touches' in ev) {
+      const t0 = ev.touches[0]
+      if (!t0) return
+      clientX = t0.clientX
+    } else {
+      clientX = (ev as MouseEvent).clientX
+    }
     const x = clientX - box.left
     const ratio = clamp(x / box.width)
     leftRatio.value = ratio
