@@ -25,6 +25,22 @@ export function formatJson(input: string, opts: FormatOptions = {}): FormatResul
   }
 
   if (!parsed.obj) {
+    const looksEscaped = /(\\\{|\\\}|\\\[|\\\]|\\\"|\\n|\\t)/.test(s)
+    if (looksEscaped) {
+      try {
+        let s2 = s
+        s2 = s2.replace(/\\`/g, '')
+        s2 = s2.replace(/`/g, '')
+        s2 = s2.replace(/\\\//g, '/')
+        s2 = s2.replace(/\\\"/g, '"')
+        s2 = s2.replace(/\\([{}\[\]])/g, '$1')
+        s2 = s2.replace(/\\(?!["\\\/bfnrtu])/g, '')
+        parsed = tryParse(s2)
+      } catch {}
+    }
+  }
+
+  if (!parsed.obj) {
     if (/^[\s\S]*[‘’']/.test(s)) {
       s = s.replace(/'/g, '"')
       parsed = tryParse(s)

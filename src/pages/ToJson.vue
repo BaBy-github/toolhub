@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { RiArrowLeftLine, RiClipboardLine } from '@remixicon/vue'
+import { RiArrowLeftLine, RiClipboardLine, RiRefreshLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
+import JsonTree from '@/components/JsonTree.vue'
+import JsonColumns from '@/components/JsonColumns.vue'
 import { formatJson } from '@/utils/format'
 
 const input = ref('')
@@ -12,6 +14,7 @@ const showOutput = ref(false)
 const leftRatio = ref(0.2)
 const splitRef = ref<HTMLElement | null>(null)
 const copied = ref(false)
+const viewMode = ref<'code' | 'tree' | 'columns'>('code')
 const router = useRouter()
 let t: number | null = null
 
@@ -105,17 +108,17 @@ function goBack() {
   <div class="min-h-screen bg-gray-50">
     <div class="mx-auto max-w-7xl p-4">
       <div class="mb-4 flex items-center justify-between">
-        <button class="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50" @click="goBack">
+        <button class="btn h-9 w-9 justify-center" @click="goBack">
           <RiArrowLeftLine size="18px" />
         </button>
         <h1 class="text-xl font-semibold">JSON格式化</h1>
         <div class="flex gap-2"></div>
       </div>
       <div v-if="!showOutput" class="grid grid-cols-1 gap-4">
-        <div class="rounded border bg-white shadow-sm overflow-hidden">
-          <div class="border-b bg-gray-50 px-3 py-2 text-sm text-gray-600 flex items-center justify-between">
+        <div class="card">
+          <div class="toolbar">
             <span>输入</span>
-            <button class="rounded-full border border-gray-300 bg-white px-2.5 py-1.5 text-gray-700 hover:bg-gray-50 text-xs" @click="clearInput">清空</button>
+            <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
           </div>
           <div class="h-[60vh]">
             <CodeEditor v-model:value="input" language="json" theme="vs" :options="options" height="100%" width="100%" />
@@ -123,24 +126,35 @@ function goBack() {
         </div>
       </div>
       <div v-else ref="splitRef" class="flex gap-0">
-        <div class="rounded border bg-white shadow-sm overflow-hidden" :style="{ width: leftWidth }">
-          <div class="border-b bg-gray-50 px-3 py-2 text-sm text-gray-600 flex items-center justify-between">
+        <div class="card" :style="{ width: leftWidth }">
+          <div class="toolbar">
             <span>输入</span>
-            <button class="rounded-full border border-gray-300 bg-white px-2.5 py-1.5 text-gray-700 hover:bg-gray-50 text-xs" @click="clearInput">清空</button>
+            <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
           </div>
           <div class="h-[60vh]">
             <CodeEditor v-model:value="input" language="json" theme="vs" :options="options" height="100%" width="100%" />
           </div>
         </div>
         <div class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
-        <div class="relative rounded border bg-white shadow-sm overflow-hidden" :style="{ width: rightWidth }">
-          <div class="border-b bg-gray-50 px-3 py-2 text-sm text-gray-600">格式化结果</div>
-          <button class="absolute right-2 top-2 flex items-center gap-1 rounded-full border border-gray-300 bg-white px-2.5 py-1.5 text-gray-700 hover:bg-gray-50" @click="copyOutput">
-            <RiClipboardLine size="16px" />
-            <span class="text-xs" v-show="copied">已复制</span>
-          </button>
+        <div class="relative card" :style="{ width: rightWidth }">
+          <div class="toolbar">
+            <span>格式化结果</span>
+            <button class="btn btn-ghost" @click="copyOutput">
+              <RiClipboardLine size="16px" />
+              <span class="text-xs" v-show="copied">已复制</span>
+            </button>
+          </div>
           <div class="h-[60vh]">
-            <CodeEditor v-model:value="output" language="json" theme="vs" :options="outOptions" height="100%" width="100%" />
+            <CodeEditor v-if="viewMode==='code'" v-model:value="output" language="json" theme="vs" :options="outOptions" height="100%" width="100%" />
+            <JsonTree v-else-if="viewMode==='tree'" :value="output ? JSON.parse(output) : null" />
+            <JsonColumns v-else :value="output ? JSON.parse(output) : null" />
+            <div class="absolute right-2 bottom-2">
+              <div class="flex rounded-lg border overflow-hidden bg-white">
+                <button :class="['px-2 py-1 text-xs', viewMode==='code' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='code'">代码</button>
+                <button :class="['px-2 py-1 text-xs', viewMode==='tree' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='tree'">树</button>
+                <button :class="['px-2 py-1 text-xs', viewMode==='columns' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='columns'">列</button>
+              </div>
+            </div>
           </div>
           <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
         </div>
