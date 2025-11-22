@@ -3,8 +3,8 @@ import { ref, watch, computed, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { RiArrowLeftLine, RiClipboardLine, RiRefreshLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
-import JsonTree from '@/components/JsonTree.vue'
 import JsonColumns from '@/components/JsonColumns.vue'
+import { JsonTreeView } from 'json-tree-view-vue3'
 import { formatJson } from '@/utils/format'
 
 const input = ref('')
@@ -146,7 +146,7 @@ function goBack() {
           </div>
           <div class="h-[60vh]">
             <CodeEditor v-if="viewMode==='code'" v-model:value="output" language="json" theme="vs" :options="outOptions" height="100%" width="100%" />
-            <JsonTree v-else-if="viewMode==='tree'" :value="output ? JSON.parse(output) : null" />
+            <JsonTreeView v-else-if="viewMode==='tree'" :json="output || ''" :maxDepth="4" />
             <JsonColumns v-else :value="output ? JSON.parse(output) : null" />
             <div class="absolute right-2 bottom-2">
               <div class="flex rounded-lg border overflow-hidden bg-white">
