@@ -18,3 +18,18 @@
 .icon-btn {
   @apply inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition;
 }
+
+/* Compact tree view wrapper */
+.json-tree-compact {
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+.json-tree-compact ul {
+  border-left: 1px solid #e5e7eb;
+  margin-left: 0.25rem;
+  padding-left: 0.5rem;
+}
+.json-tree-compact li {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
