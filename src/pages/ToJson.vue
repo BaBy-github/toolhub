@@ -146,7 +146,9 @@ function goBack() {
           </div>
           <div class="h-[60vh]">
             <CodeEditor v-if="viewMode==='code'" v-model:value="output" language="json" theme="vs" :options="outOptions" height="100%" width="100%" />
-            <JsonTreeView v-else-if="viewMode==='tree'" :json="output || ''" :maxDepth="4" />
+            <div v-else-if="viewMode==='tree'" class="h-full overflow-auto">
+              <JsonTreeView :json="output || ''" :maxDepth="4" />
+            </div>
             <JsonColumns v-else :value="output ? JSON.parse(output) : null" />
             <div class="absolute right-2 bottom-2">
               <div class="flex rounded-lg border overflow-hidden bg-white">
