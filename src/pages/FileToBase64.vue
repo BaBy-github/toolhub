@@ -3,6 +3,8 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { RiArrowLeftLine, RiClipboardLine, RiRefreshLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
+import PageContainer from '@/components/PageContainer.vue'
+import PageHeader from '@/components/PageHeader.vue'
 
 const router = useRouter()
 const dropRef = ref<HTMLElement | null>(null)
@@ -189,15 +191,8 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <div class="mx-auto max-w-7xl p-4">
-      <div class="mb-4 flex items-center justify-between">
-        <button class="btn h-9 w-9 justify-center" @click="goBack">
-          <RiArrowLeftLine size="22px" />
-        </button>
-        <h1 class="text-xl font-semibold">2Base64</h1>
-        <div class="flex gap-2"></div>
-      </div>
+  <PageContainer>
+    <PageHeader title="To Base64" @back="goBack" />
 
       <div v-if="!showOutput" ref="splitRef" class="grid grid-cols-1 gap-4">
         <div class="card">
@@ -251,8 +246,7 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
           <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
         </div>
       </div>
-    </div>
-  </div>
+  </PageContainer>
 </template>
 
 <style scoped></style>

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { RiArrowLeftLine, RiClipboardLine, RiRefreshLine } from '@remixicon/vue'
+import { RiClipboardLine, RiRefreshLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
 import JsonColumns from '@/components/JsonColumns.vue'
 import { JsonTreeView } from 'json-tree-view-vue3'
 import { formatJson } from '@/utils/format'
+import PageContainer from '@/components/PageContainer.vue'
+import PageHeader from '@/components/PageHeader.vue'
 
 const input = ref('')
 const output = ref('')
@@ -105,15 +107,8 @@ function goBack() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <div class="mx-auto max-w-7xl p-4">
-      <div class="mb-4 flex items-center justify-between">
-        <button class="btn h-14 w-14 justify-center" @click="goBack">
-          <RiArrowLeftLine />
-        </button>
-        <h1 class="text-xl font-semibold">JSON格式化</h1>
-        <div class="flex gap-2"></div>
-      </div>
+  <PageContainer>
+    <PageHeader title="To Json" @back="goBack" />
       <div v-if="!showOutput" class="grid grid-cols-1 gap-4">
         <div class="card">
           <div class="toolbar">
@@ -161,8 +156,7 @@ function goBack() {
           <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
         </div>
       </div>
-    </div>
-  </div>
+  </PageContainer>
 </template>
 
 <style scoped></style>
