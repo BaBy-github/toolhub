@@ -20,6 +20,16 @@
           </div>
           <div class="mt-2 text-sm text-gray-600">粘贴字符串，右侧实时展示格式化结果</div>
         </router-link>
+        <router-link to="/2base64" class="group card p-4 transition hover:shadow-md">
+          <div class="mb-3 flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600">B64</div>
+            <div>
+              <div class="text-base font-medium">2Base64</div>
+              <div class="text-xs text-gray-500">拖拽/粘贴文件或文本，生成 Base64</div>
+            </div>
+          </div>
+          <div class="mt-2 text-sm text-gray-600">输入与输出均使用 Monaco 展示</div>
+        </router-link>
       </div>
     </div>
   </div>
