@@ -108,8 +108,8 @@ function goBack() {
   <div class="min-h-screen bg-gray-50">
     <div class="mx-auto max-w-7xl p-4">
       <div class="mb-4 flex items-center justify-between">
-        <button class="btn h-9 w-9 justify-center" @click="goBack">
-          <RiArrowLeftLine size="18px" />
+        <button class="btn h-14 w-14 justify-center" @click="goBack">
+          <RiArrowLeftLine />
         </button>
         <h1 class="text-xl font-semibold">JSON格式化</h1>
         <div class="flex gap-2"></div>
