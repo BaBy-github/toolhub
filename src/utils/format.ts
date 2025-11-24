@@ -53,6 +53,57 @@ export function formatJson(input: string, opts: FormatOptions = {}): FormatResul
   }
 
   if (!parsed.obj) {
+    const looksXml = /^\s*<([A-Za-z_][\w\-\.:]*)[\s\S]*>\s*$/.test(s)
+    if (looksXml) {
+      try {
+        const doc = new DOMParser().parseFromString(s, 'application/xml')
+        const errNodes = doc.getElementsByTagName('parsererror')
+        if (!errNodes || errNodes.length === 0) {
+          const root = doc.documentElement
+          const toObj = (el: Element): any => {
+            const o: any = {}
+            if (el.attributes && el.attributes.length) {
+              const a: any = {}
+              for (let i = 0; i < el.attributes.length; i++) {
+                const at = el.attributes.item(i)
+                if (at) a[at.name] = at.value
+              }
+              o['@attributes'] = a
+            }
+            const childMap: Record<string, any[]> = {}
+            let textVal = ''
+            for (let i = 0; i < el.childNodes.length; i++) {
+              const n = el.childNodes.item(i)
+              if (!n) continue
+              if (n.nodeType === 1) {
+                const c = n as Element
+                const k = c.tagName
+                const v = toObj(c)
+                if (!childMap[k]) childMap[k] = []
+                childMap[k].push(v)
+              } else if (n.nodeType === 3 || n.nodeType === 4) {
+                const t = (n.nodeValue || '').trim()
+                if (t) textVal += t
+              }
+            }
+            for (const k in childMap) {
+              const arr = childMap[k] || []
+              o[k] = arr.length === 1 ? arr[0] : arr
+            }
+            if (textVal && Object.keys(o).length === 0) return textVal
+            if (textVal) o['#text'] = textVal
+            return o
+          }
+          const obj: any = {}
+          obj[root.tagName] = toObj(root)
+          const stable = sortKeys ? sort(obj) : obj
+          return { ok: true, formatted: JSON.stringify(stable, null, indent) }
+        }
+      } catch {}
+    }
+  }
+
+  if (!parsed.obj) {
     return { ok: false, error: '无法解析为JSON' }
   }
 

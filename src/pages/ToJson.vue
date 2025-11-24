@@ -87,6 +87,12 @@ watch(input, (v) => {
   }, 200)
 })
 
+const inputLang = computed(() => {
+  const s = input.value.trim()
+  const isXml = /^<([A-Za-z_][\w\-\.:]*)[\s\S]*>\s*$/.test(s)
+  return isXml ? 'xml' : 'json'
+})
+
 function clearInput() {
   input.value = ''
   showOutput.value = false
@@ -116,7 +122,7 @@ function goBack() {
             <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
           </div>
           <div class="h-[60vh]">
-            <CodeEditor v-model:value="input" language="json" theme="vs" :options="options" height="100%" width="100%" />
+            <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
           </div>
         </div>
       </div>
@@ -127,7 +133,7 @@ function goBack() {
             <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
           </div>
           <div class="h-[60vh]">
-            <CodeEditor v-model:value="input" language="json" theme="vs" :options="options" height="100%" width="100%" />
+            <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
           </div>
         </div>
         <div class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
