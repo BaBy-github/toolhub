@@ -8,6 +8,7 @@ import { JsonTreeView } from 'json-tree-view-vue3'
 import { formatJson } from '@/utils/format'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
+import ActionButton from '@/components/ActionButton.vue'
 
 const input = ref('')
 const output = ref('')
@@ -140,10 +141,10 @@ function goBack() {
         <div class="relative card" :style="{ width: rightWidth }">
           <div class="toolbar">
             <span>格式化结果</span>
-            <button class="btn btn-ghost" @click="copyOutput">
-              <RiClipboardLine size="16px" />
-              <span class="text-xs" v-show="copied">已复制</span>
-            </button>
+            <ActionButton variant="ghost" title="复制" @click="copyOutput">
+              <RiClipboardLine size="18px" />
+            </ActionButton>
+            <span class="text-xs" v-show="copied">已复制</span>
           </div>
           <div class="h-[60vh]">
             <CodeEditor v-if="viewMode==='code'" v-model:value="output" language="json" theme="vs" :options="outOptions" height="100%" width="100%" />

@@ -6,6 +6,7 @@ import CodeEditor from 'monaco-editor-vue3'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { formatXml, jsonToXml } from '@/utils/format'
+import ActionButton from '@/components/ActionButton.vue'
 
 const input = ref('')
 const output = ref('')
@@ -191,10 +192,10 @@ const inputLang = computed(() => {
         <div class="relative card" :style="{ width: rightWidth }">
           <div class="toolbar">
             <span>XML 输出</span>
-            <button class="btn btn-ghost" @click="copyOutput">
-              <RiClipboardLine size="16px" />
-              <span class="text-xs" v-show="copied">已复制</span>
-            </button>
+            <ActionButton variant="ghost" title="复制" @click="copyOutput">
+              <RiClipboardLine size="18px" />
+            </ActionButton>
+            <span class="text-xs" v-show="copied">已复制</span>
           </div>
           <div class="h-[60vh]">
             <CodeEditor v-model:value="output" language="xml" theme="vs" :options="outOptions" height="100%" width="100%" />

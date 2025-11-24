@@ -5,6 +5,7 @@ import { RiArrowLeftLine, RiClipboardLine, RiRefreshLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
+import ActionButton from '@/components/ActionButton.vue'
 
 const router = useRouter()
 const dropRef = ref<HTMLElement | null>(null)
@@ -234,10 +235,10 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
                 <input type="checkbox" v-model="withPrefix" @change="() => { if (fileInfo) showOutput = true }" />
                 前缀
               </label>
-              <button class="btn btn-ghost" @click="copyOutput">
-                <RiClipboardLine size="16px" />
-                <span class="text-xs" v-show="copied">已复制</span>
-              </button>
+              <ActionButton variant="ghost" title="复制" @click="copyOutput">
+                <RiClipboardLine size="18px" />
+              </ActionButton>
+              <span class="text-xs" v-show="copied">已复制</span>
             </div>
           </div>
           <div class="h-[60vh]">
