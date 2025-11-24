@@ -6,6 +6,7 @@ const router = createRouter({
     { path: '/', component: () => import('@/pages/Home.vue') },
     { path: '/2json', component: () => import('@/pages/ToJson.vue') },
     { path: '/2base64', component: () => import('@/pages/ToBase64.vue') },
+    { path: '/2xml', component: () => import('@/pages/ToXml.vue') },
   ],
 })
 

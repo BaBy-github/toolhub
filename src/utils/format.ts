@@ -117,6 +117,109 @@ export function formatJson(input: string, opts: FormatOptions = {}): FormatResul
   }
 }
 
+export function formatXml(input: string, opts: FormatOptions = {}): FormatResult {
+  const indent = typeof opts.indent === 'number' ? opts.indent : 2
+  let s = input?.trim() ?? ''
+  if (!s) return { ok: true, formatted: '' }
+  try {
+    const doc = new DOMParser().parseFromString(s, 'application/xml')
+    const err = doc.getElementsByTagName('parsererror')
+    if (err && err.length > 0) return { ok: false, error: '无法解析为XML' }
+    const root = doc.documentElement
+    const formatted = renderXml(root, indent, 0)
+    return { ok: true, formatted }
+  } catch {
+    return { ok: false, error: '无法解析为XML' }
+  }
+}
+
+export function jsonToXml(input: string, opts: FormatOptions = {}): FormatResult {
+  const indent = typeof opts.indent === 'number' ? opts.indent : 2
+  let s = input?.trim() ?? ''
+  if (!s) return { ok: true, formatted: '' }
+  let obj: any
+  try {
+    obj = JSON.parse(s)
+  } catch {
+    return { ok: false, error: '无法解析为JSON' }
+  }
+  const xml = toXml('root', obj)
+  const r = formatXml(xml, { indent })
+  return r.ok ? { ok: true, formatted: r.formatted } : r
+}
+
+function xmlEsc(v: any): string {
+  const s = String(v ?? '')
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
+}
+
+function toXml(tag: string, v: any): string {
+  if (v === null || v === undefined) return `<${tag}/>`
+  if (Array.isArray(v)) return v.map((x) => toXml(tag, x)).join('')
+  if (v && typeof v === 'object') {
+    const attrs = v['@attributes'] && typeof v['@attributes'] === 'object' ? v['@attributes'] : null
+    const keys = Object.keys(v).filter((k) => k !== '@attributes' && k !== '#text')
+    const attrStr = attrs ? ' ' + Object.keys(attrs).map((k) => `${k}="${xmlEsc(attrs[k])}"`).join(' ') : ''
+    if (v['#text'] != null && keys.length === 0) return `<${tag}${attrStr}>${xmlEsc(v['#text'])}</${tag}>`
+    const children = keys.map((k) => toXml(k, v[k])).join('')
+    return children ? `<${tag}${attrStr}>${children}</${tag}>` : `<${tag}${attrStr}/>`
+  }
+  return `<${tag}>${xmlEsc(v)}</${tag}>`
+}
+
+function prettyXml(xml: string, indent: number): string {
+  let s = xml.trim()
+  s = s.replace(/>\s+</g, '><')
+  s = s.replace(/></g, '>$<')
+  const tokens = s.split('$')
+  const lines: string[] = []
+  let lvl = 0
+  for (const t of tokens) {
+    const line = t.trim()
+    if (!line) continue
+    if (/^<\//.test(line)) lvl = Math.max(lvl - 1, 0)
+    const pad = ' '.repeat(Math.max(0, lvl * indent))
+    lines.push(pad + line)
+    if (/^<([^!?][^>]*?)(?<!\/)>$/.test(line)) lvl++
+  }
+  return lines.join('\n')
+}
+
+function renderXml(el: Element, indent: number, level: number): string {
+  const pad = ' '.repeat(level * indent)
+  const name = el.tagName
+  const attrs: string[] = []
+  for (let i = 0; i < el.attributes.length; i++) {
+    const at = el.attributes.item(i)
+    if (at) attrs.push(`${at.name}="${xmlEsc(at.value)}"`)
+  }
+  const attrStr = attrs.length ? ' ' + attrs.join(' ') : ''
+  const children: string[] = []
+  let text = ''
+  for (let i = 0; i < el.childNodes.length; i++) {
+    const n = el.childNodes.item(i)
+    if (!n) continue
+    if (n.nodeType === 1) {
+      children.push(renderXml(n as Element, indent, level + 1))
+    } else if (n.nodeType === 3) {
+      const t = (n.nodeValue || '').trim()
+      if (t) text += t
+    } else if (n.nodeType === 4) {
+      const c = (n.nodeValue || '')
+      children.push(' '.repeat((level + 1) * indent) + `<![CDATA[${c}]]>`)
+    } else if (n.nodeType === 8) {
+      const c = (n.nodeValue || '')
+      children.push(' '.repeat((level + 1) * indent) + `<!--${c}-->`)
+    }
+  }
+  if (!children.length && !text) return `${pad}<${name}${attrStr}/>`
+  if (!children.length && text) return `${pad}<${name}${attrStr}>${xmlEsc(text)}</${name}>`
+  const open = `${pad}<${name}${attrStr}>`
+  const mid = children.join('\n')
+  const close = `${pad}</${name}>`
+  return `${open}\n${mid}\n${close}`
+}
+
 function sort(v: any): any {
   if (Array.isArray(v)) return v.map(sort)
   if (v && typeof v === 'object') {

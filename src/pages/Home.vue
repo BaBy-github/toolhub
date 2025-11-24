@@ -30,6 +30,16 @@
           </div>
           <div class="mt-2 text-sm text-gray-600">可解析文件mime</div>
         </router-link>
+        <router-link to="/2xml" class="group card p-4 transition hover:shadow-md">
+          <div class="mb-3 flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600">XML</div>
+            <div>
+              <div class="text-base font-medium">To Xml</div>
+              <div class="text-xs text-gray-500">XML格式化、JSON转XML</div>
+            </div>
+          </div>
+          <div class="mt-2 text-sm text-gray-600">支持拖拽与粘贴</div>
+        </router-link>
       </div>
     </div>
   </div>
