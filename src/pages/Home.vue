@@ -10,7 +10,7 @@
         </div>
       </div>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <router-link to="/tojson" class="group card p-4 transition hover:shadow-md">
+        <router-link to="/2json" class="group card p-4 transition hover:shadow-md">
           <div class="mb-3 flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">{}</div>
             <div>
