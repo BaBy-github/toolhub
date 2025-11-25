@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch, computed, nextTick, onBeforeUnmount } from 'vue'
+import { ref, watch, computed, nextTick, onBeforeUnmount, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { RiClipboardLine, RiRefreshLine } from '@remixicon/vue'
+import { RiClipboardLine, RiRefreshLine, RiArrowGoBackLine, RiArrowGoForwardLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
 import JsonColumns from '@/components/JsonColumns.vue'
 import { JsonTreeView } from 'json-tree-view-vue3'
@@ -20,6 +20,33 @@ const copied = ref(false)
 const viewMode = ref<'code' | 'tree' | 'columns'>('code')
 const router = useRouter()
 let t: number | null = null
+const history = ref<string[]>([''])
+const cursor = ref(0)
+const applying = ref(false)
+
+function pushHistory(v: string) {
+  if (applying.value) return
+  const cur = cursor.value
+  if (cur < history.value.length - 1) history.value = history.value.slice(0, cur + 1)
+  if (history.value[history.value.length - 1] !== v) {
+    history.value.push(v)
+    cursor.value = history.value.length - 1
+  }
+}
+function undo() {
+  if (cursor.value <= 0) return
+  cursor.value = cursor.value - 1
+  applying.value = true
+  input.value = history.value[cursor.value] || ''
+  applying.value = false
+}
+function redo() {
+  if (cursor.value >= history.value.length - 1) return
+  cursor.value = cursor.value + 1
+  applying.value = true
+  input.value = history.value[cursor.value] || ''
+  applying.value = false
+}
 
 const options = { language: 'json', theme: 'vs', minimap: { enabled: false }, automaticLayout: true }
 const outOptions = { language: 'json', theme: 'vs', readOnly: true, minimap: { enabled: false }, automaticLayout: true }
@@ -73,6 +100,7 @@ watch(leftRatio, async () => {
 
 watch(input, (v) => {
   const trimmed = v.trim()
+  pushHistory(v)
   if (!showOutput.value && trimmed.length > 0) {
     showOutput.value = true
     leftRatio.value = 0.2
@@ -120,7 +148,14 @@ function goBack() {
         <div class="card">
           <div class="toolbar">
             <span>输入</span>
-            <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
+            <div class="flex items-center gap-2">
+              <ActionButton variant="ghost" title="撤回" :disabled="cursor<=0" @click="undo">
+                <RiArrowGoBackLine size="18px" />
+              </ActionButton>
+              <ActionButton variant="ghost" title="重做" :disabled="cursor>=history.length-1" @click="redo">
+                <RiArrowGoForwardLine size="18px" />
+              </ActionButton>
+            </div>
           </div>
           <div class="h-[60vh]">
             <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
@@ -131,7 +166,14 @@ function goBack() {
         <div class="card" :style="{ width: leftWidth }">
           <div class="toolbar">
             <span>输入</span>
-            <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
+            <div class="flex items-center gap-2">
+              <ActionButton variant="ghost" title="撤回" :disabled="cursor<=0" @click="undo">
+                <RiArrowGoBackLine size="18px" />
+              </ActionButton>
+              <ActionButton variant="ghost" title="重做" :disabled="cursor>=history.length-1" @click="redo">
+                <RiArrowGoForwardLine size="18px" />
+              </ActionButton>
+            </div>
           </div>
           <div class="h-[60vh]">
             <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
