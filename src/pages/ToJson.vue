@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onBeforeUnmount, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { RiClipboardLine, RiRefreshLine, RiArrowGoBackLine, RiArrowGoForwardLine } from '@remixicon/vue'
+import { RiClipboardLine, RiArrowGoBackLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
 import JsonColumns from '@/components/JsonColumns.vue'
 import { JsonTreeView } from 'json-tree-view-vue3'
@@ -23,6 +23,7 @@ let t: number | null = null
 const history = ref<string[]>([''])
 const cursor = ref(0)
 const applying = ref(false)
+const canUndo = computed(() => cursor.value > 0)
 
 function pushHistory(v: string) {
   if (applying.value) return
@@ -36,13 +37,6 @@ function pushHistory(v: string) {
 function undo() {
   if (cursor.value <= 0) return
   cursor.value = cursor.value - 1
-  applying.value = true
-  input.value = history.value[cursor.value] || ''
-  applying.value = false
-}
-function redo() {
-  if (cursor.value >= history.value.length - 1) return
-  cursor.value = cursor.value + 1
   applying.value = true
   input.value = history.value[cursor.value] || ''
   applying.value = false
@@ -149,11 +143,8 @@ function goBack() {
           <div class="toolbar">
             <span>输入</span>
             <div class="flex items-center gap-2">
-              <ActionButton variant="ghost" title="撤回" :disabled="cursor<=0" @click="undo">
+              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
                 <RiArrowGoBackLine size="18px" />
-              </ActionButton>
-              <ActionButton variant="ghost" title="重做" :disabled="cursor>=history.length-1" @click="redo">
-                <RiArrowGoForwardLine size="18px" />
               </ActionButton>
             </div>
           </div>
@@ -167,11 +158,8 @@ function goBack() {
           <div class="toolbar">
             <span>输入</span>
             <div class="flex items-center gap-2">
-              <ActionButton variant="ghost" title="撤回" :disabled="cursor<=0" @click="undo">
+              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
                 <RiArrowGoBackLine size="18px" />
-              </ActionButton>
-              <ActionButton variant="ghost" title="重做" :disabled="cursor>=history.length-1" @click="redo">
-                <RiArrowGoForwardLine size="18px" />
               </ActionButton>
             </div>
           </div>

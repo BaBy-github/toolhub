@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { RiArrowLeftLine, RiClipboardLine, RiRefreshLine } from '@remixicon/vue'
+import { RiArrowLeftLine, RiClipboardLine, RiRefreshLine, RiArrowGoBackLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
@@ -19,6 +19,10 @@ const withPrefix = ref(false)
 const lastDataUrl = ref('')
 const fileInfo = ref<{ name: string; size: number; type: string } | null>(null)
 const inputText = ref('')
+const history = ref<string[]>([''])
+const cursor = ref(0)
+const applying = ref(false)
+const canUndo = computed(() => cursor.value > 0 && !fileInfo.value)
 
 const leftWidth = computed(() => `${Math.round(leftRatio.value * 100)}%`)
 const rightWidth = computed(() => `${100 - Math.round(leftRatio.value * 100)}%`)
@@ -161,8 +165,26 @@ function encodeTextToBase64(s: string): string {
   return btoa(bin)
 }
 
+function pushHistory(v: string) {
+  if (applying.value) return
+  const cur = cursor.value
+  if (cur < history.value.length - 1) history.value = history.value.slice(0, cur + 1)
+  if (history.value[history.value.length - 1] !== v) {
+    history.value.push(v)
+    cursor.value = history.value.length - 1
+  }
+}
+function undo() {
+  if (cursor.value <= 0) return
+  cursor.value = cursor.value - 1
+  applying.value = true
+  inputText.value = history.value[cursor.value] || ''
+  applying.value = false
+}
+
 watch(inputText, (v) => {
   const trimmed = v.trim()
+  pushHistory(v)
   if (!trimmed) {
     if (!fileInfo.value) { output.value = ''; showOutput.value = false }
     return
@@ -199,7 +221,12 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
         <div class="card">
           <div class="toolbar">
             <span>输入</span>
-            <button class="icon-btn" @click="clearAll"><RiRefreshLine size="16px" /></button>
+            <div class="flex items-center gap-2">
+              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
+                <RiArrowGoBackLine size="18px" />
+              </ActionButton>
+              <button class="icon-btn" @click="clearAll"><RiRefreshLine size="16px" /></button>
+            </div>
           </div>
           <div class="h-[60vh]">
             <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
@@ -213,7 +240,12 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
         <div class="card" :style="{ width: leftWidth }">
           <div class="toolbar">
             <span>{{ fileInfo ? '文件信息' : '输入' }}</span>
-            <button class="icon-btn" @click="clearAll"><RiRefreshLine size="16px" /></button>
+            <div class="flex items-center gap-2">
+              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
+                <RiArrowGoBackLine size="18px" />
+              </ActionButton>
+              <button class="icon-btn" @click="clearAll"><RiRefreshLine size="16px" /></button>
+            </div>
           </div>
           <div v-if="fileInfo" class="p-4 text-sm text-gray-700">
             <div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { RiClipboardLine, RiRefreshLine } from '@remixicon/vue'
+import { RiClipboardLine, RiRefreshLine, RiArrowGoBackLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
@@ -18,6 +18,10 @@ const dropRef = ref<HTMLElement | null>(null)
 const copied = ref(false)
 const router = useRouter()
 let t: number | null = null
+const history = ref<string[]>([''])
+const cursor = ref(0)
+const applying = ref(false)
+const canUndo = computed(() => cursor.value > 0)
 
 const options = { theme: 'vs', minimap: { enabled: false }, automaticLayout: true }
 const outOptions = { language: 'xml', theme: 'vs', readOnly: true, minimap: { enabled: false }, automaticLayout: true }
@@ -131,6 +135,7 @@ onBeforeUnmount(() => {
 
 watch(input, (v) => {
   const trimmed = v.trim()
+  pushHistory(v)
   if (!showOutput.value && trimmed.length > 0) { showOutput.value = true; leftRatio.value = 0.2 }
   else if (showOutput.value && trimmed.length === 0) { showOutput.value = false }
   if (t) clearTimeout(t as any)
@@ -158,6 +163,23 @@ const inputLang = computed(() => {
     return 'json'
   }
 })
+
+function pushHistory(v: string) {
+  if (applying.value) return
+  const cur = cursor.value
+  if (cur < history.value.length - 1) history.value = history.value.slice(0, cur + 1)
+  if (history.value[history.value.length - 1] !== v) {
+    history.value.push(v)
+    cursor.value = history.value.length - 1
+  }
+}
+function undo() {
+  if (cursor.value <= 0) return
+  cursor.value = cursor.value - 1
+  applying.value = true
+  input.value = history.value[cursor.value] || ''
+  applying.value = false
+}
 </script>
 
 <template>
@@ -167,7 +189,12 @@ const inputLang = computed(() => {
         <div class="card">
           <div class="toolbar">
             <span>输入</span>
-            <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
+            <div class="flex items-center gap-2">
+              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
+                <RiArrowGoBackLine size="18px" />
+              </ActionButton>
+              <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
+            </div>
           </div>
           <div class="h-[60vh]">
             <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
@@ -180,7 +207,12 @@ const inputLang = computed(() => {
         <div class="card" :style="{ width: leftWidth }">
           <div class="toolbar">
             <span>输入</span>
-            <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
+            <div class="flex items-center gap-2">
+              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
+                <RiArrowGoBackLine size="18px" />
+              </ActionButton>
+              <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
+            </div>
           </div>
           <div class="h-[60vh]">
             <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
