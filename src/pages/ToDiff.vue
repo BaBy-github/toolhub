@@ -62,7 +62,7 @@ onMounted(() => {
     modified.value = modifiedModel?.getValue() || ''
   })
   
-  // 添加样式来限制左侧面板最小宽度
+  // 添加样式来限制左侧面板最小宽度和增强差异高亮效果
   const style = document.createElement('style')
   style.textContent = `
     /* 限制Monaco差异编辑器左侧面板的最小宽度为20% */
@@ -73,6 +73,25 @@ onMounted(() => {
     /* 限制Monaco差异编辑器右侧面板的最小宽度为20% */
     .monaco-diff-editor .editor.modified {
       min-width: 20% !important;
+    }
+    
+    /* 增强差异高亮效果，让不同内容的字符颜色更深 */
+    .monaco-editor .diff.inserted {
+      background-color: rgba(16, 185, 129, 0.2) !important;
+      color: #059669 !important;
+      font-weight: 600 !important;
+    }
+    
+    .monaco-editor .diff.deleted {
+      background-color: rgba(239, 68, 68, 0.2) !important;
+      color: #dc2626 !important;
+      font-weight: 600 !important;
+    }
+    
+    .monaco-editor .diff.changed {
+      background-color: rgba(251, 191, 36, 0.2) !important;
+      color: #d97706 !important;
+      font-weight: 600 !important;
     }
   `
   document.head.appendChild(style)
