@@ -40,6 +40,16 @@
           </div>
           <div class="mt-2 text-sm text-gray-600">支持拖拽与粘贴</div>
         </router-link>
+        <router-link to="/2diff" class="group card p-4 transition hover:shadow-md">
+          <div class="mb-3 flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600">Δ</div>
+            <div>
+              <div class="text-base font-medium">To Diff</div>
+              <div class="text-xs text-gray-500">字符串对比、差异高亮</div>
+            </div>
+          </div>
+          <div class="mt-2 text-sm text-gray-600">支持实时对比</div>
+        </router-link>
       </div>
     </div>
   </div>
