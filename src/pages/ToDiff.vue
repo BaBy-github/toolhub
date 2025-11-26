@@ -62,7 +62,7 @@ onMounted(() => {
     modified.value = modifiedModel?.getValue() || ''
   })
   
-  // 添加样式来限制左侧面板最小宽度和增强差异高亮效果
+  // 添加样式来限制左侧面板最小宽度、增强差异高亮效果和改进箭头样式
   const style = document.createElement('style')
   style.textContent = `
     /* 限制Monaco差异编辑器左侧面板的最小宽度为20% */
@@ -92,6 +92,37 @@ onMounted(() => {
       background-color: rgba(251, 191, 36, 0.2) !important;
       color: #d97706 !important;
       font-weight: 600 !important;
+    }
+    
+    /* 改进差异箭头样式，参考IDEA的合并样式 */
+    .monaco-diff-editor .diff-arrow {
+      background-color: rgba(100, 100, 100, 0.1) !important;
+      border-radius: 4px !important;
+      border: 1px solid rgba(100, 100, 100, 0.3) !important;
+      width: 24px !important;
+      height: 24px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin-top: -12px !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+    }
+    
+    .monaco-diff-editor .diff-arrow:before {
+      color: #64748b !important;
+      font-size: 14px !important;
+      font-weight: bold !important;
+    }
+    
+    /* 改进差异区域的样式 */
+    .monaco-diff-editor .diff-insert {
+      background-color: rgba(16, 185, 129, 0.1) !important;
+    }
+    
+    .monaco-diff-editor .diff-delete {
+      background-color: rgba(239, 68, 68, 0.1) !important;
     }
   `
   document.head.appendChild(style)
