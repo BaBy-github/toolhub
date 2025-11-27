@@ -10,6 +10,7 @@ import { pushToolState, popToolState } from '@/utils/toolState'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionButton from '@/components/ActionButton.vue'
+import ConversionButton from '@/components/ConversionButton.vue'
 
 const input = ref('')
 const output = ref('')
@@ -27,9 +28,25 @@ const cursor = ref(0)
 const applying = ref(false)
 const canUndo = computed(() => cursor.value > 0)
 
-// 从路由参数中获取初始输入
+// 从路由参数中获取初始输入和状态
 if (route.query.input) {
   input.value = route.query.input as string
+}
+if (route.query.output) {
+  // 如果有保存的输出值，直接使用，不需要重新计算
+  output.value = route.query.output as string
+} else if (input.value.trim()) {
+  // 否则处理初始输入，计算输出
+  handleInputChange(input.value)
+}
+if (route.query.showOutput) {
+  showOutput.value = route.query.showOutput === 'true'
+}
+if (route.query.leftRatio) {
+  leftRatio.value = parseFloat(route.query.leftRatio as string)
+}
+if (route.query.viewMode) {
+  viewMode.value = route.query.viewMode as 'code' | 'tree' | 'columns'
 }
 
 function pushHistory(v: string) {
@@ -95,11 +112,20 @@ onBeforeUnmount(() => {
   if (upHandler) window.removeEventListener('touchend', upHandler as any)
 })
 
+onMounted(() => {
+  // 如果有初始输入值，自动显示输出框并计算输出
+  if (input.value.trim()) {
+    showOutput.value = true
+    handleInputChange(input.value)
+  }
+})
+
 watch(leftRatio, async () => {
   await nextTick()
 })
 
-watch(input, (v) => {
+// 处理输入变化，计算输出
+function handleInputChange(v: string) {
   const trimmed = v.trim()
   pushHistory(v)
   if (!showOutput.value && trimmed.length > 0) {
@@ -115,6 +141,10 @@ watch(input, (v) => {
     if (r.ok) { output.value = r.formatted as string; error.value = '' }
     else { output.value = ''; error.value = r.error as string }
   }, 200)
+}
+
+watch(input, (v) => {
+  handleInputChange(v)
 })
 
 const inputLang = computed(() => {
@@ -138,7 +168,17 @@ async function copyOutput() {
 function goBack() {
   const prevState = popToolState()
   if (prevState) {
-    router.push(prevState.path)
+    // 跳转到之前的路径，并将保存的状态作为路由参数传递
+    router.push({
+      path: prevState.path,
+      query: {
+        input: prevState.input,
+        output: prevState.output,
+        showOutput: prevState.showOutput?.toString(),
+        leftRatio: prevState.leftRatio?.toString(),
+        viewMode: prevState.viewMode
+      }
+    })
   } else {
     router.push('/')
   }
@@ -187,7 +227,47 @@ function goToXml() {
 
 <template>
   <PageContainer>
-    <PageHeader title="To Json" @back="goBack" />
+    <PageHeader title="To Json" @back="goBack">
+      <template #actions>
+        <ConversionButton 
+          current-tool="json"
+          :conversions="[
+            {
+              name: 'diff',
+              label: 'To Diff',
+              path: '/2diff',
+              icon: 'Δ',
+              color: '#f97316'
+            },
+            {
+              name: 'xml',
+              label: 'To Xml',
+              path: '/2xml',
+              icon: 'XML',
+              color: '#9333ea'
+            }
+          ]"
+          @conversion="(conversion) => {
+            // 保存当前状态
+            pushToolState({
+              path: '/2json',
+              input: input,
+              output: output,
+              showOutput: showOutput,
+              leftRatio: leftRatio,
+              viewMode: viewMode
+            })
+            // 跳转到目标工具页面，将当前输出作为输入
+            router.push({
+              path: conversion.path,
+              query: {
+                input: output
+              }
+            })
+          }"
+        />
+      </template>
+    </PageHeader>
       <div v-if="!showOutput" class="grid grid-cols-1 gap-4">
         <div class="card">
           <div class="toolbar">
@@ -225,10 +305,6 @@ function goToXml() {
               <RiClipboardLine size="18px" />
             </ActionButton>
             <span class="text-xs" v-show="copied">已复制</span>
-            <div class="ml-auto flex gap-2">
-              <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors" @click="goToDiff">To Diff</button>
-              <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors" @click="goToXml">To Xml</button>
-            </div>
           </div>
           <div class="h-[60vh]">
             <CodeEditor v-if="viewMode==='code'" v-model:value="output" language="json" theme="vs" :options="outOptions" height="100%" width="100%" />
