@@ -55,10 +55,6 @@ function saveConversion(conversion: ConversionTool) {
 function handleConversion(conversion: ConversionTool) {
   saveConversion(conversion)
   emit('conversion', conversion)
-  // 跳转到目标工具页面
-  router.push({
-    path: conversion.path
-  })
 }
 
 // 计算当前显示的转换工具
@@ -89,8 +85,8 @@ onMounted(() => {
       @click="handleConversion(displayConversion)"
     >
       <div 
-        class="flex h-9 w-9 items-center justify-center rounded-lg bg-white bg-opacity-20 text-white"
-        :style="{ backgroundColor: `${displayConversion.color}20`, color: displayConversion.color }"
+        class="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-white"
+        :style="{ color: displayConversion.color }"
       >
         {{ displayConversion.icon }}
       </div>

@@ -218,15 +218,32 @@ function handleInputChange(v: string) {
   if (t) clearTimeout(t as any)
   t = window.setTimeout(() => {
     if (!trimmed) { output.value = ''; error.value = ''; return }
+    
+    // 检查是否为有效的XML
     let isXml = false
     try {
       const doc = new DOMParser().parseFromString(trimmed, 'application/xml')
       const err = doc.getElementsByTagName('parsererror')
-      isXml = !err || err.length === 0
+      isXml = err.length === 0
     } catch { isXml = false }
-    const r = isXml ? formatXml(v, { indent: 2 }) : jsonToXml(v, { indent: 2 })
-    if (r.ok) { output.value = r.formatted as string; error.value = '' }
-    else { output.value = ''; error.value = r.error as string }
+    
+    if (isXml) {
+      // 如果是有效的XML，使用formatXml格式化
+      const r = formatXml(v, { indent: 2 })
+      if (r.ok) { output.value = r.formatted as string; error.value = '' }
+      else { output.value = ''; error.value = r.error as string }
+    } else {
+      // 如果不是有效的XML，尝试使用jsonToXml转换
+      const r = jsonToXml(v, { indent: 2 })
+      if (r.ok) { output.value = r.formatted as string; error.value = '' }
+      else {
+        // 如果jsonToXml也失败，显示更合适的错误信息
+        output.value = '' 
+        // 检查输入是否看起来像XML但格式错误
+        const looksLikeXml = /^\s*<([A-Za-z_][\w\-\.:]*)[\s\S]*>\s*$/.test(trimmed)
+        error.value = looksLikeXml ? '无法解析为XML' : '无法解析为JSON或XML'
+      }
+    }
   }, 200)
 }
 
@@ -313,7 +330,6 @@ function undo() {
               <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
                 <RiArrowGoBackLine size="18px" />
               </ActionButton>
-              <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
             </div>
           </div>
           <div class="h-[60vh]">
@@ -331,7 +347,6 @@ function undo() {
               <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
                 <RiArrowGoBackLine size="18px" />
               </ActionButton>
-              <button class="icon-btn" @click="clearInput"><RiRefreshLine size="16px" /></button>
             </div>
           </div>
           <div class="h-[60vh]">
