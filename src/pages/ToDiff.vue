@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { RiClipboardLine, RiArrowGoBackLine } from '@remixicon/vue'
 import { editor } from 'monaco-editor'
+import { popToolState } from '@/utils/toolState'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionButton from '@/components/ActionButton.vue'
@@ -10,10 +11,16 @@ import ActionButton from '@/components/ActionButton.vue'
 const original = ref('')
 const modified = ref('')
 const router = useRouter()
+const route = useRoute()
 const containerRef = ref<HTMLElement | null>(null)
 let diffEditor: editor.IStandaloneDiffEditor | null = null
 let originalModel: editor.ITextModel | null = null
 let modifiedModel: editor.ITextModel | null = null
+
+// 从路由参数中获取初始值
+if (route.query.original) {
+  original.value = route.query.original as string
+}
 
 const diffOptions = {
   theme: 'vs',
@@ -144,10 +151,12 @@ function clearInput() {
   modifiedModel?.setValue('')
 }
 function goBack() {
-  const trimmedOriginal = original.value.trim()
-  const trimmedModified = modified.value.trim()
-  if (trimmedOriginal.length === 0 && trimmedModified.length === 0) router.push('/')
-  else clearInput()
+  const prevState = popToolState()
+  if (prevState) {
+    router.push(prevState.path)
+  } else {
+    router.push('/')
+  }
 }
 </script>
 

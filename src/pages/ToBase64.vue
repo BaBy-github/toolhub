@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { RiArrowLeftLine, RiClipboardLine, RiRefreshLine, RiArrowGoBackLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
+import { popToolState } from '@/utils/toolState'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionButton from '@/components/ActionButton.vue'
@@ -134,8 +135,12 @@ async function copyOutput() {
 }
 
 function goBack() {
-  if (!output.value) router.push('/')
-  else clearAll()
+  const prevState = popToolState()
+  if (prevState) {
+    router.push(prevState.path)
+  } else {
+    router.push('/')
+  }
 }
 
 onMounted(async () => {

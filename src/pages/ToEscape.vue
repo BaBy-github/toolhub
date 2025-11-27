@@ -7,6 +7,7 @@ import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionButton from '@/components/ActionButton.vue'
 import { escapeString, unescapeString } from '@/utils/escape'
+import { popToolState } from '@/utils/toolState'
 
 const input = ref('')
 const output = ref('')
@@ -132,9 +133,12 @@ async function copyOutput() {
   } catch {}
 }
 function goBack() {
-  const trimmed = input.value.trim()
-  if (trimmed.length === 0) router.push('/')
-  else clearInput()
+  const prevState = popToolState()
+  if (prevState) {
+    router.push(prevState.path)
+  } else {
+    router.push('/')
+  }
 }
 </script>
 

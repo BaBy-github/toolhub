@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onBeforeUnmount, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { RiClipboardLine, RiArrowGoBackLine } from '@remixicon/vue'
 import CodeEditor from 'monaco-editor-vue3'
 import JsonColumns from '@/components/JsonColumns.vue'
 import { JsonTreeView } from 'json-tree-view-vue3'
 import { formatJson } from '@/utils/format'
+import { pushToolState, popToolState } from '@/utils/toolState'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionButton from '@/components/ActionButton.vue'
@@ -19,11 +20,17 @@ const splitRef = ref<HTMLElement | null>(null)
 const copied = ref(false)
 const viewMode = ref<'code' | 'tree' | 'columns'>('code')
 const router = useRouter()
+const route = useRoute()
 let t: number | null = null
 const history = ref<string[]>([''])
 const cursor = ref(0)
 const applying = ref(false)
 const canUndo = computed(() => cursor.value > 0)
+
+// 从路由参数中获取初始输入
+if (route.query.input) {
+  input.value = route.query.input as string
+}
 
 function pushHistory(v: string) {
   if (applying.value) return
@@ -129,9 +136,52 @@ async function copyOutput() {
   } catch {}
 }
 function goBack() {
-  const trimmed = input.value.trim()
-  if (trimmed.length === 0) router.push('/')
-  else clearInput()
+  const prevState = popToolState()
+  if (prevState) {
+    router.push(prevState.path)
+  } else {
+    router.push('/')
+  }
+}
+
+function goToDiff() {
+  // 保存当前状态
+  pushToolState({
+    path: '/2json',
+    input: input.value,
+    output: output.value,
+    showOutput: showOutput.value,
+    leftRatio: leftRatio.value,
+    viewMode: viewMode.value
+  })
+  
+  // 跳转到ToDiff页面，将当前输出作为差异比较的原始内容
+  router.push({
+    path: '/2diff',
+    query: {
+      original: output.value
+    }
+  })
+}
+
+function goToXml() {
+  // 保存当前状态
+  pushToolState({
+    path: '/2json',
+    input: input.value,
+    output: output.value,
+    showOutput: showOutput.value,
+    leftRatio: leftRatio.value,
+    viewMode: viewMode.value
+  })
+  
+  // 跳转到ToXml页面，将当前输出作为输入
+  router.push({
+    path: '/2xml',
+    query: {
+      input: output.value
+    }
+  })
 }
 </script>
 
@@ -175,6 +225,10 @@ function goBack() {
               <RiClipboardLine size="18px" />
             </ActionButton>
             <span class="text-xs" v-show="copied">已复制</span>
+            <div class="ml-auto flex gap-2">
+              <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors" @click="goToDiff">To Diff</button>
+              <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors" @click="goToXml">To Xml</button>
+            </div>
           </div>
           <div class="h-[60vh]">
             <CodeEditor v-if="viewMode==='code'" v-model:value="output" language="json" theme="vs" :options="outOptions" height="100%" width="100%" />
