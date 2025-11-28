@@ -13,6 +13,9 @@ export interface ToolState {
 // 工具状态栈
 const toolStateStack: ToolState[] = []
 
+// 临时存储，用于在工具间传递值
+let nextToolInput: string | null = null
+
 /**
  * 保存当前工具状态到栈中
  * @param state 当前工具状态
@@ -62,4 +65,29 @@ export function initToolState(path: string, initialInput: string = ''): ToolStat
     leftRatio: 0.2,
     viewMode: 'code'
   }
+}
+
+/**
+ * 设置下一个工具的输入值
+ * @param input 输入值
+ */
+export function setNextToolInput(input: string): void {
+  nextToolInput = input
+}
+
+/**
+ * 获取下一个工具的输入值
+ * @returns 输入值，如果没有则返回null
+ */
+export function getNextToolInput(): string | null {
+  const input = nextToolInput
+  nextToolInput = null
+  return input
+}
+
+/**
+ * 清除下一个工具的输入值
+ */
+export function clearNextToolInput(): void {
+  nextToolInput = null
 }

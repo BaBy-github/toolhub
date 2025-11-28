@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { RiClipboardLine, RiArrowGoBackLine } from '@remixicon/vue'
 import { editor } from 'monaco-editor'
-import { popToolState } from '@/utils/toolState'
+import { popToolState, getNextToolInput, setNextToolInput } from '@/utils/toolState'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionButton from '@/components/ActionButton.vue'
@@ -17,9 +17,16 @@ let diffEditor: editor.IStandaloneDiffEditor | null = null
 let originalModel: editor.ITextModel | null = null
 let modifiedModel: editor.ITextModel | null = null
 
-// 从路由参数中获取初始值
-if (route.query.original) {
+// 从toolState获取初始值，优先于URL query参数
+const nextInput = getNextToolInput()
+if (nextInput) {
+  original.value = nextInput
+} else if (route.query.original) {
+  // 兼容旧的URL参数
   original.value = route.query.original as string
+} else if (route.query.input) {
+  // 支持input参数名
+  original.value = route.query.input as string
 }
 
 const diffOptions = {
@@ -153,6 +160,9 @@ function clearInput() {
 function goBack() {
   const prevState = popToolState()
   if (prevState) {
+    // 使用setNextToolInput传递状态，不使用URL参数
+    setNextToolInput(prevState.input)
+    // 跳转到之前的路径，不携带URL参数
     router.push(prevState.path)
   } else {
     router.push('/')

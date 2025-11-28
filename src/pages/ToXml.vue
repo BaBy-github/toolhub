@@ -6,7 +6,7 @@ import CodeEditor from 'monaco-editor-vue3'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { formatXml, jsonToXml } from '@/utils/format'
-import { pushToolState, popToolState } from '@/utils/toolState'
+import { pushToolState, popToolState, getNextToolInput, setNextToolInput } from '@/utils/toolState'
 import ActionButton from '@/components/ActionButton.vue'
 import ConversionButton from '@/components/ConversionButton.vue'
 
@@ -26,22 +26,19 @@ const cursor = ref(0)
 const applying = ref(false)
 const canUndo = computed(() => cursor.value > 0)
 
-// 从路由参数中获取初始输入和状态
-if (route.query.input) {
+// 从toolState获取初始值，优先于URL query参数
+const nextInput = getNextToolInput()
+if (nextInput) {
+  input.value = nextInput
+  // 处理初始输入，计算输出
+  handleInputChange(input.value)
+} else if (route.query.input) {
   input.value = route.query.input as string
-}
-if (route.query.output) {
-  // 如果有保存的输出值，直接使用，不需要重新计算
-  output.value = route.query.output as string
+  // 处理初始输入，计算输出
+  handleInputChange(input.value)
 } else if (input.value.trim()) {
   // 否则处理初始输入，计算输出
   handleInputChange(input.value)
-}
-if (route.query.showOutput) {
-  showOutput.value = route.query.showOutput === 'true'
-}
-if (route.query.leftRatio) {
-  leftRatio.value = parseFloat(route.query.leftRatio as string)
 }
 
 const options = { theme: 'vs', minimap: { enabled: false }, automaticLayout: true }
@@ -103,16 +100,10 @@ async function copyOutput() {
 function goBack() {
   const prevState = popToolState()
   if (prevState) {
-    // 跳转到之前的路径，并将保存的状态作为路由参数传递
-    router.push({
-      path: prevState.path,
-      query: {
-        input: prevState.input,
-        output: prevState.output,
-        showOutput: prevState.showOutput?.toString(),
-        leftRatio: prevState.leftRatio?.toString()
-      }
-    })
+    // 使用setNextToolInput传递状态，不使用URL参数
+    setNextToolInput(prevState.input)
+    // 跳转到之前的路径，不携带URL参数
+    router.push(prevState.path)
   } else {
     router.push('/')
   }
@@ -128,12 +119,12 @@ function goToJson() {
     leftRatio: leftRatio.value
   })
   
-  // 跳转到ToJson页面，将当前输出作为输入
+  // 使用toolState传递值，而不是URL query参数
+  setNextToolInput(output.value)
+  
+  // 跳转到ToJson页面
   router.push({
-    path: '/2json',
-    query: {
-      input: output.value
-    }
+    path: '/2json'
   })
 }
 
@@ -147,12 +138,12 @@ function goToDiff() {
     leftRatio: leftRatio.value
   })
   
-  // 跳转到ToDiff页面，将当前输出作为差异比较的原始内容
+  // 使用toolState传递值，而不是URL query参数
+  setNextToolInput(output.value)
+  
+  // 跳转到ToDiff页面
   router.push({
-    path: '/2diff',
-    query: {
-      original: output.value
-    }
+    path: '/2diff'
   })
 }
 
@@ -311,12 +302,11 @@ function undo() {
               showOutput: showOutput,
               leftRatio: leftRatio
             })
-            // 跳转到目标工具页面，将当前输出作为输入
+            // 使用toolState传递值，而不是URL query参数
+            setNextToolInput(output)
+            // 跳转到目标工具页面
             router.push({
-              path: conversion.path,
-              query: {
-                input: output
-              }
+              path: conversion.path
             })
           }"
         />
