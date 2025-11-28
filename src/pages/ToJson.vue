@@ -254,8 +254,9 @@ function goToXml() {
         />
       </template>
     </PageHeader>
-      <div v-if="!showOutput" class="grid grid-cols-1 gap-4">
-        <div class="card">
+      <div ref="splitRef" class="flex gap-0">
+        <!-- 输入区域 -->
+        <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
           <div class="toolbar">
             <span>输入</span>
             <div class="flex items-center gap-2">
@@ -268,23 +269,12 @@ function goToXml() {
             <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
           </div>
         </div>
-      </div>
-      <div v-else ref="splitRef" class="flex gap-0">
-        <div class="card" :style="{ width: leftWidth }">
-          <div class="toolbar">
-            <span>输入</span>
-            <div class="flex items-center gap-2">
-              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
-                <RiArrowGoBackLine size="18px" />
-              </ActionButton>
-            </div>
-          </div>
-          <div class="h-[60vh]">
-            <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
-          </div>
-        </div>
-        <div class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
-        <div class="relative card" :style="{ width: rightWidth }">
+
+        <!-- 分割线 -->
+        <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
+
+        <!-- 输出区域 -->
+        <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
           <div class="toolbar">
             <span>格式化结果</span>
             <ActionButton variant="ghost" title="复制" @click="copyOutput">

@@ -15,7 +15,7 @@ const showOutput = ref(false)
 const output = ref('')
 const copied = ref(false)
 const error = ref('')
-const leftRatio = ref(0.3)
+const leftRatio = ref(0.2)
 const withPrefix = ref(false)
 const lastDataUrl = ref('')
 const fileInfo = ref<{ name: string; size: number; type: string } | null>(null)
@@ -198,6 +198,7 @@ watch(inputText, (v) => {
   try {
     output.value = encodeTextToBase64(trimmed)
     showOutput.value = true
+    leftRatio.value = 0.2
     fileInfo.value = null
   } catch {
     error.value = '文本转码失败'
@@ -222,68 +223,55 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
   <PageContainer>
     <PageHeader title="To Base64" @back="goBack" />
 
-      <div v-if="!showOutput" ref="splitRef" class="grid grid-cols-1 gap-4">
-        <div class="card">
-          <div class="toolbar">
-            <span>输入</span>
-            <div class="flex items-center gap-2">
-              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
-                <RiArrowGoBackLine size="18px" />
-              </ActionButton>
-              <button class="icon-btn" @click="clearAll"><RiRefreshLine size="16px" /></button>
-            </div>
+    <div ref="splitRef" class="flex gap-0">
+      <!-- 输入区域 -->
+      <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
+        <div class="toolbar">
+          <span>{{ fileInfo ? '文件信息' : '输入' }}</span>
+          <div class="flex items-center gap-2">
+            <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
+              <RiArrowGoBackLine size="18px" />
+            </ActionButton>
           </div>
-          <div class="h-[60vh]">
-            <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
-              <CodeEditor v-model:value="inputText" language="plaintext" theme="vs" :options="inOptions" height="100%" width="100%" />
-            </div>
+        </div>
+        <div v-if="fileInfo" class="p-4 text-sm text-gray-700">
+          <div>
+            <div>名称：{{ fileInfo.name }}</div>
+            <div>大小：{{ formatBytes(fileInfo.size) }}</div>
+            <div>类型：{{ fileInfo.type || '未知' }}</div>
+          </div>
+        </div>
+        <div v-else class="h-[60vh]">
+          <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
+            <CodeEditor v-model:value="inputText" language="plaintext" theme="vs" :options="inOptions" height="100%" width="100%" />
           </div>
         </div>
       </div>
 
-      <div v-else ref="splitRef" class="flex gap-0">
-        <div class="card" :style="{ width: leftWidth }">
-          <div class="toolbar">
-            <span>{{ fileInfo ? '文件信息' : '输入' }}</span>
-            <div class="flex items-center gap-2">
-              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
-                <RiArrowGoBackLine size="18px" />
-              </ActionButton>
-              <button class="icon-btn" @click="clearAll"><RiRefreshLine size="16px" /></button>
-            </div>
-          </div>
-          <div v-if="fileInfo" class="p-4 text-sm text-gray-700">
-            <div>
-              <div>名称：{{ fileInfo.name }}</div>
-              <div>大小：{{ formatBytes(fileInfo.size) }}</div>
-              <div>类型：{{ fileInfo.type || '未知' }}</div>
-            </div>
-          </div>
-          <div v-else class="h-[60vh]">
-            <CodeEditor v-model:value="inputText" language="plaintext" theme="vs" :options="inOptions" height="100%" width="100%" />
+      <!-- 分割线 -->
+      <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
+
+      <!-- 输出区域 -->
+      <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
+        <div class="toolbar">
+          <span>Base64 输出</span>
+          <div class="flex items-center gap-2">
+            <label class="inline-flex items-center gap-1 text-xs text-gray-600">
+              <input type="checkbox" v-model="withPrefix" @change="() => { if (fileInfo) showOutput = true }" />
+              前缀
+            </label>
+            <ActionButton variant="ghost" title="复制" @click="copyOutput">
+              <RiClipboardLine size="18px" />
+            </ActionButton>
+            <span class="text-xs" v-show="copied">已复制</span>
           </div>
         </div>
-        <div class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
-        <div class="relative card" :style="{ width: rightWidth }">
-          <div class="toolbar">
-            <span>Base64 输出</span>
-            <div class="flex items-center gap-2">
-              <label class="inline-flex items-center gap-1 text-xs text-gray-600">
-                <input type="checkbox" v-model="withPrefix" @change="() => { if (fileInfo) showOutput = true }" />
-                前缀
-              </label>
-              <ActionButton variant="ghost" title="复制" @click="copyOutput">
-                <RiClipboardLine size="18px" />
-              </ActionButton>
-              <span class="text-xs" v-show="copied">已复制</span>
-            </div>
-          </div>
-          <div class="h-[60vh]">
-            <CodeEditor v-model:value="output" language="plaintext" theme="vs" :options="outOptions" height="100%" width="100%" />
-          </div>
-          <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
+        <div class="h-[60vh]">
+          <CodeEditor v-model:value="output" language="plaintext" theme="vs" :options="outOptions" height="100%" width="100%" />
         </div>
+        <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
       </div>
+    </div>
   </PageContainer>
 </template>
 

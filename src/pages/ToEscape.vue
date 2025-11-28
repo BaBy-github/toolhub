@@ -148,8 +148,9 @@ function goBack() {
     
 
     
-    <div v-if="!showOutput" class="grid grid-cols-1 gap-4">
-      <div class="card">
+    <div ref="splitRef" class="flex gap-0">
+      <!-- 输入区域 -->
+      <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
         <div class="toolbar">
           <span>输入</span>
           <ActionButton variant="ghost" title="转义设置" @click="toggleEscapeSettings">
@@ -180,41 +181,12 @@ function goBack() {
           <CodeEditor v-model:value="input" :language="'text'" theme="vs" :options="options" height="100%" width="100%" />
         </div>
       </div>
-    </div>
-    <div v-else ref="splitRef" class="flex gap-0">
-      <div class="card" :style="{ width: leftWidth }">
-        <div class="toolbar">
-          <span>输入</span>
-          <ActionButton variant="ghost" title="转义设置" @click="toggleEscapeSettings">
-            <RiSettings3Line size="18px" />
-          </ActionButton>
-        </div>
-        
-        <!-- 转义设置选项框 -->
-        <div v-if="showEscapeSettings" class="mb-3 p-3 bg-gray-50 border rounded-md">
-          <h3 class="mb-2 text-sm font-medium">转义设置</h3>
-          <div class="space-y-2 text-sm">
-            <label class="flex items-center gap-2">
-              <input v-model="escapeSettings.escapeDoubleQuotes" type="checkbox" />
-              <span>转义双引号（"）</span>
-            </label>
-            <label class="flex items-center gap-2">
-              <input v-model="escapeSettings.escapeSingleQuotes" type="checkbox" />
-              <span>转义单引号（'）</span>
-            </label>
-            <label class="flex items-center gap-2">
-              <input v-model="escapeSettings.escapeNewlines" type="checkbox" />
-              <span>转义换行符（\r\n）</span>
-            </label>
-          </div>
-        </div>
-        
-        <div class="h-[60vh]">
-          <CodeEditor v-model:value="input" :language="'text'" theme="vs" :options="options" height="100%" width="100%" />
-        </div>
-      </div>
-      <div class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
-      <div class="relative card" :style="{ width: rightWidth }">
+
+      <!-- 分割线 -->
+      <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
+
+      <!-- 输出区域 -->
+      <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
         <div class="toolbar">
           <span>转义结果</span>
           <ActionButton variant="ghost" title="复制" @click="copyOutput">
