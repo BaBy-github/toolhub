@@ -17,16 +17,10 @@ let diffEditor: editor.IStandaloneDiffEditor | null = null
 let originalModel: editor.ITextModel | null = null
 let modifiedModel: editor.ITextModel | null = null
 
-// 从toolState获取初始值，优先于URL query参数
+// 从toolState获取初始值
 const nextInput = getNextToolInput()
 if (nextInput) {
   original.value = nextInput
-} else if (route.query.original) {
-  // 兼容旧的URL参数
-  original.value = route.query.original as string
-} else if (route.query.input) {
-  // 支持input参数名
-  original.value = route.query.input as string
 }
 
 const diffOptions = {
