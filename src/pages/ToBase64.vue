@@ -130,7 +130,7 @@ async function copyOutput() {
   try {
     await navigator.clipboard.writeText(output.value)
     copied.value = true
-    window.setTimeout(() => { copied.value = false }, 1200)
+    window.setTimeout(() => { copied.value = false }, 1000)
   } catch {}
 }
 
@@ -254,18 +254,33 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
       <!-- 输出区域 -->
       <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
         <div class="toolbar">
-          <span>Base64 输出</span>
-          <div class="flex items-center gap-2">
-            <label class="inline-flex items-center gap-1 text-xs text-gray-600">
-              <input type="checkbox" v-model="withPrefix" @change="() => { if (fileInfo) showOutput = true }" />
-              前缀
-            </label>
-            <ActionButton variant="ghost" title="复制" @click="copyOutput">
-              <RiClipboardLine size="18px" />
-            </ActionButton>
-            <span class="text-xs" v-show="copied">已复制</span>
+            <span>Base64 输出</span>
+            <div class="flex items-center gap-2">
+              <label class="inline-flex items-center gap-1 text-xs text-gray-600">
+                <input type="checkbox" v-model="withPrefix" @change="() => { if (fileInfo) showOutput = true }" />
+                前缀
+              </label>
+              <div class="relative">
+                <!-- 复制按钮 -->
+                <ActionButton 
+                  v-if="!copied" 
+                  variant="ghost" 
+                  title="复制" 
+                  @click="copyOutput"
+                  class="transition-all duration-300"
+                >
+                  <RiClipboardLine size="18px" />
+                </ActionButton>
+                <!-- 已复制文字 -->
+                <span 
+                  v-else 
+                  class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
+                >
+                  已复制
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
         <div class="h-[60vh]">
           <CodeEditor v-model:value="output" language="plaintext" theme="vs" :options="outOptions" height="100%" width="100%" />
         </div>
