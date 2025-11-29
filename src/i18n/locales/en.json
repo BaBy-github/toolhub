@@ -1,0 +1,79 @@
+{
+  "common": {
+    "back": "Back",
+    "clear": "Clear",
+    "copy": "Copy",
+    "paste": "Paste",
+    "input": "Input",
+    "output": "Formatted Result",
+    "copied": "Copied",
+    "undo": "Undo",
+    "code": "Code",
+    "tree": "Tree",
+    "columns": "Columns"
+  },
+  "home": {
+    "title": "Tool Hub",
+    "subtitle": "Select a tool to get started",
+    "toJson": {
+      "title": "To Json",
+      "description": "Json string, escaped Json string",
+      "feature": "Supports three views"
+    },
+    "toBase64": {
+      "title": "To Base64",
+      "description": "File, string",
+      "feature": "Can parse file mime"
+    },
+    "toXml": {
+      "title": "To Xml",
+      "description": "XML formatting, JSON to XML",
+      "feature": "Supports drag and drop"
+    },
+    "toDiff": {
+      "title": "To Diff",
+      "description": "String comparison, difference highlighting",
+      "feature": "Supports real-time comparison"
+    },
+    "toEscape": {
+      "title": "To Escape",
+      "description": "String escape, unescape",
+      "feature": "Supports HTML, JSON, JavaScript"
+    }
+  },
+  "diff": {
+    "title": "To Diff",
+    "contentA": "Content A",
+    "contentB": "Content B"
+  },
+  "json": {
+    "title": "To Json"
+  },
+  "base64": {
+    "title": "To Base64",
+    "fileInfo": "File Info",
+    "output": "Base64 Output",
+    "prefix": "Prefix",
+    "fileReadError": "Failed to read file",
+    "textEncodeError": "Failed to encode text"
+  },
+  "xml": {
+    "title": "To Xml",
+    "output": "XML Output",
+    "fileReadError": "Failed to read file",
+    "parseXmlError": "Cannot parse as XML",
+    "parseJsonOrXmlError": "Cannot parse as JSON or XML"
+  },
+  "escape": {
+    "title": "To Escape",
+    "output": "Escape Result",
+    "settings": "Escape Settings",
+    "escapeDoubleQuotes": "Escape double quotes (\")",
+    "escapeSingleQuotes": "Escape single quotes (')",
+    "escapeNewlines": "Escape newlines (\\r\\n)"
+  },
+  "language": {
+    "zh": "中文",
+    "en": "English"
+  }
+}

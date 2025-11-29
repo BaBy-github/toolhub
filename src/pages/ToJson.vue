@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onBeforeUnmount, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useTranslation } from 'i18next-vue'
 import { RiClipboardLine, RiArrowGoBackLine } from '@remixicon/vue'
+
+const { t } = useTranslation()
 import CodeEditor from 'monaco-editor-vue3'
 import JsonColumns from '@/components/JsonColumns.vue'
 import { JsonTreeView } from 'json-tree-view-vue3'
@@ -22,7 +25,7 @@ const copied = ref(false)
 const viewMode = ref<'code' | 'tree' | 'columns'>('code')
 const router = useRouter()
 const route = useRoute()
-let t: number | null = null
+let timeoutId: number | null = null
 const history = ref<string[]>([''])
 const cursor = ref(0)
 const applying = ref(false)
@@ -128,8 +131,8 @@ function handleInputChange(v: string) {
   } else if (showOutput.value && trimmed.length === 0) {
     showOutput.value = false
   }
-  if (t) clearTimeout(t as any)
-  t = window.setTimeout(() => {
+  if (timeoutId) clearTimeout(timeoutId as any)
+  timeoutId = window.setTimeout(() => {
     if (!trimmed) { output.value = ''; error.value = '' ; return }
     const r = formatJson(v, { indent: 2, sortKeys: false })
     if (r.ok) { output.value = r.formatted as string; error.value = '' }
@@ -214,7 +217,7 @@ function goToXml() {
 
 <template>
   <PageContainer>
-    <PageHeader title="To Json" @back="goBack">
+    <PageHeader :title="t('json.title')" @back="goBack">
       <template #actions>
         <ConversionButton 
           current-tool="json"
@@ -265,7 +268,7 @@ function goToXml() {
         <!-- 输入区域 -->
         <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
           <div class="toolbar">
-            <span>输入</span>
+            <span>{{ t('common.input') }}</span>
             <div class="flex items-center gap-2">
               <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
                 <RiArrowGoBackLine size="18px" />
@@ -283,7 +286,7 @@ function goToXml() {
         <!-- 输出区域 -->
         <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
           <div class="toolbar">
-            <span>格式化结果</span>
+            <span>{{ t('common.output') }}</span>
             <div class="relative">
               <!-- 复制按钮 -->
               <ActionButton 
@@ -300,7 +303,7 @@ function goToXml() {
                 v-else 
                 class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
               >
-                已复制
+                {{ t('common.copied') }}
               </span>
             </div>
           </div>
@@ -312,9 +315,9 @@ function goToXml() {
             <JsonColumns v-else :value="output ? JSON.parse(output) : null" />
             <div class="absolute right-2 bottom-2">
               <div class="flex rounded-lg border overflow-hidden bg-white">
-                <button :class="['px-2 py-1 text-xs', viewMode==='code' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='code'">代码</button>
-                <button :class="['px-2 py-1 text-xs', viewMode==='tree' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='tree'">树</button>
-                <button :class="['px-2 py-1 text-xs', viewMode==='columns' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='columns'">列</button>
+                <button :class="['px-2 py-1 text-xs', viewMode==='code' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='code'"> {{ t('common.code') }}</button>
+                <button :class="['px-2 py-1 text-xs', viewMode==='tree' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='tree'"> {{ t('common.tree') }}</button>
+                <button :class="['px-2 py-1 text-xs', viewMode==='columns' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='columns'"> {{ t('common.columns') }}</button>
               </div>
             </div>
           </div>

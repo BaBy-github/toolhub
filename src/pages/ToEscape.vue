@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
+import { useTranslation } from 'i18next-vue'
 import { RiClipboardLine, RiArrowGoBackLine, RiSettings3Line } from '@remixicon/vue'
+
+const { t } = useTranslation()
 import CodeEditor from 'monaco-editor-vue3'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
@@ -17,7 +20,7 @@ const splitRef = ref<HTMLElement | null>(null)
 const settingsContainer = ref<HTMLElement | null>(null)
 const copied = ref(false)
 const router = useRouter()
-let t: number | null = null
+let timeoutId: number | null = null
 
 // 转义设置
 const showEscapeSettings = ref(false)
@@ -128,8 +131,8 @@ watch(input, (newVal, oldVal) => {
     isFirstPaste.value = false
   }
   
-  if (t) clearTimeout(t as any)
-  t = window.setTimeout(() => {
+  if (timeoutId) clearTimeout(timeoutId as any)
+  timeoutId = window.setTimeout(() => {
     if (!trimmed) { output.value = ''; return }
     try {
       output.value = escapeString(trimmed, escapeSettings.value)
@@ -175,7 +178,7 @@ function goBack() {
 
 <template>
   <PageContainer>
-    <PageHeader title="To Escape" @back="goBack" />
+    <PageHeader :title="t('escape.title')" @back="goBack" />
     
 
     
@@ -183,12 +186,12 @@ function goBack() {
       <!-- 输入区域 -->
       <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
         <div class="toolbar">
-          <span>输入</span>
+          <span>{{ t('common.input') }}</span>
           <!-- 转义设置下拉菜单 - 重构版本 -->
           <div class="relative" ref="settingsContainer">
             <button 
               class="p-2 rounded-md hover:bg-gray-100 transition-colors cursor-pointer" 
-              title="转义设置"
+              :title="t('escape.settings')"
               @click="showEscapeSettings = !showEscapeSettings"
               @mouseenter="handleSettingsMouseEnter"
             >
@@ -207,15 +210,15 @@ function goBack() {
                 <div class="space-y-2">
                   <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-md transition-colors">
                     <input v-model="escapeSettings.escapeDoubleQuotes" type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" />
-                    <span class="text-sm text-gray-700">转义双引号（"）</span>
+                    <span class="text-sm text-gray-700">{{ t('escape.escapeDoubleQuotes') }}</span>
                   </label>
                   <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-md transition-colors">
                     <input v-model="escapeSettings.escapeSingleQuotes" type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" />
-                    <span class="text-sm text-gray-700">转义单引号（'）</span>
+                    <span class="text-sm text-gray-700">{{ t('escape.escapeSingleQuotes') }}</span>
                   </label>
                   <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-md transition-colors">
                     <input v-model="escapeSettings.escapeNewlines" type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" />
-                    <span class="text-sm text-gray-700">转义换行符（\r\n）</span>
+                    <span class="text-sm text-gray-700">{{ t('escape.escapeNewlines') }}</span>
                   </label>
                 </div>
               </div>
@@ -234,7 +237,7 @@ function goBack() {
       <!-- 输出区域 -->
       <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
         <div class="toolbar">
-          <span>转义结果</span>
+          <span>{{ t('escape.output') }}</span>
           <div class="relative">
             <!-- 复制按钮 -->
             <ActionButton 
@@ -247,12 +250,12 @@ function goBack() {
               <RiClipboardLine size="18px" />
             </ActionButton>
             <!-- 已复制文字 -->
-            <span 
-              v-else 
-              class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
-            >
-              已复制
-            </span>
+              <span 
+                v-else 
+                class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
+              >
+                {{ t('common.copied') }}
+              </span>
           </div>
         </div>
         <div class="h-[60vh]">

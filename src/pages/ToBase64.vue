@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useTranslation } from 'i18next-vue'
 import { RiArrowLeftLine, RiClipboardLine, RiRefreshLine, RiArrowGoBackLine } from '@remixicon/vue'
+
+const { t } = useTranslation()
 import CodeEditor from 'monaco-editor-vue3'
 import { popToolState } from '@/utils/toolState'
 import PageContainer from '@/components/PageContainer.vue'
@@ -74,7 +77,7 @@ function toBase64(file: File) {
     showOutput.value = true
   }
   r.onerror = () => {
-    error.value = '读取文件失败'
+    error.value = t('base64.fileReadError')
   }
   r.readAsDataURL(file)
 }
@@ -201,7 +204,7 @@ watch(inputText, (v) => {
     leftRatio.value = 0.2
     fileInfo.value = null
   } catch {
-    error.value = '文本转码失败'
+    error.value = t('base64.textEncodeError')
   }
 })
 
@@ -221,13 +224,13 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
 
 <template>
   <PageContainer>
-    <PageHeader title="To Base64" @back="goBack" />
+    <PageHeader :title="t('base64.title')" @back="goBack" />
 
     <div ref="splitRef" class="flex gap-0">
       <!-- 输入区域 -->
       <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
         <div class="toolbar">
-          <span>{{ fileInfo ? '文件信息' : '输入' }}</span>
+          <span>{{ fileInfo ? t('base64.fileInfo') : t('common.input') }}</span>
           <div class="flex items-center gap-2">
             <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
               <RiArrowGoBackLine size="18px" />
@@ -254,11 +257,11 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
       <!-- 输出区域 -->
       <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
         <div class="toolbar">
-            <span>Base64 输出</span>
+            <span>{{ t('base64.output') }}</span>
             <div class="flex items-center gap-2">
               <label class="inline-flex items-center gap-1 text-xs text-gray-600">
                 <input type="checkbox" v-model="withPrefix" @change="() => { if (fileInfo) showOutput = true }" />
-                前缀
+                {{ t('base64.prefix') }}
               </label>
               <div class="relative">
                 <!-- 复制按钮 -->
@@ -272,12 +275,12 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
                   <RiClipboardLine size="18px" />
                 </ActionButton>
                 <!-- 已复制文字 -->
-                <span 
-                  v-else 
-                  class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
-                >
-                  已复制
-                </span>
+              <span 
+                v-else 
+                class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
+              >
+                {{ t('common.copied') }}
+              </span>
               </div>
             </div>
           </div>

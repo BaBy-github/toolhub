@@ -16,6 +16,9 @@
   },
   "dependencies": {
     "@remixicon/vue": "^4.7.0",
+    "i18next": "^25.6.3",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-vue": "^5.3.1",
     "json-tree-view-vue3": "^1.1.2",
     "monaco-editor": "^0.54.0",
     "monaco-editor-vue3": "^1.0.4",

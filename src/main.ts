@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import { i18n, I18NextVue } from './i18n'
 import './style.css'
 
 ;(self as any).MonacoEnvironment = {
@@ -12,4 +13,4 @@ import './style.css'
   },
 }
 
-createApp(App).use(router).mount('#app')
+createApp(App).use(router).use(I18NextVue, { i18next: i18n }).mount('#app')

@@ -1,0 +1,79 @@
+{
+  "common": {
+    "back": "返回",
+    "clear": "清空",
+    "copy": "复制",
+    "paste": "粘贴",
+    "input": "输入",
+    "output": "格式化结果",
+    "copied": "已复制",
+    "undo": "撤回",
+    "code": "代码",
+    "tree": "树",
+    "columns": "列"
+  },
+  "home": {
+    "title": "工具中心",
+    "subtitle": "选择一个工具开始使用",
+    "toJson": {
+      "title": "To Json",
+      "description": "Json字符串、带转义的Json字符串",
+      "feature": "支持三种视图"
+    },
+    "toBase64": {
+      "title": "To Base64",
+      "description": "文件、字符串",
+      "feature": "可解析文件mime"
+    },
+    "toXml": {
+      "title": "To Xml",
+      "description": "XML格式化、JSON转XML",
+      "feature": "支持拖拽与粘贴"
+    },
+    "toDiff": {
+      "title": "To Diff",
+      "description": "字符串对比、差异高亮",
+      "feature": "支持实时对比"
+    },
+    "toEscape": {
+      "title": "To Escape",
+      "description": "字符串转义、反转义",
+      "feature": "支持HTML、JSON、JavaScript"
+    }
+  },
+  "diff": {
+    "title": "To Diff",
+    "contentA": "内容A",
+    "contentB": "内容B"
+  },
+  "json": {
+    "title": "To Json"
+  },
+  "base64": {
+    "title": "To Base64",
+    "fileInfo": "文件信息",
+    "output": "Base64 输出",
+    "prefix": "前缀",
+    "fileReadError": "读取文件失败",
+    "textEncodeError": "文本转码失败"
+  },
+  "xml": {
+    "title": "To Xml",
+    "output": "XML 输出",
+    "fileReadError": "读取文件失败",
+    "parseXmlError": "无法解析为XML",
+    "parseJsonOrXmlError": "无法解析为JSON或XML"
+  },
+  "escape": {
+    "title": "To Escape",
+    "output": "转义结果",
+    "settings": "转义设置",
+    "escapeDoubleQuotes": "转义双引号（\"）",
+    "escapeSingleQuotes": "转义单引号（'）",
+    "escapeNewlines": "转义换行符（\\r\\n）"
+  },
+  "language": {
+    "zh": "中文",
+    "en": "English"
+  }
+}

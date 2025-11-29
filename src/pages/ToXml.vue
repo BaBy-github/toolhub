@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useTranslation } from 'i18next-vue'
 import { RiClipboardLine, RiRefreshLine, RiArrowGoBackLine } from '@remixicon/vue'
+
+const { t } = useTranslation()
 import CodeEditor from 'monaco-editor-vue3'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
@@ -20,7 +23,7 @@ const dropRef = ref<HTMLElement | null>(null)
 const copied = ref(false)
 const router = useRouter()
 const route = useRoute()
-let t: number | null = null
+let timeoutId: number | null = null
 const history = ref<string[]>([''])
 const cursor = ref(0)
 const applying = ref(false)
@@ -155,7 +158,7 @@ function onDrop(e: DragEvent) {
   if (!f) return
   const r = new FileReader()
   r.onload = () => { input.value = String(r.result || '') }
-  r.onerror = () => { error.value = '读取文件失败' }
+  r.onerror = () => { error.value = t('xml.fileReadError') }
   r.readAsText(f)
 }
 function onDragover(e: DragEvent) { e.preventDefault() }
@@ -171,7 +174,7 @@ function onPaste(e: ClipboardEvent) {
       if (f) {
         const r = new FileReader()
         r.onload = () => { input.value = String(r.result || '') }
-        r.onerror = () => { error.value = '读取文件失败' }
+        r.onerror = () => { error.value = t('xml.fileReadError') }
         r.readAsText(f)
         break
       }
@@ -206,8 +209,8 @@ function handleInputChange(v: string) {
   pushHistory(v)
   if (!showOutput.value && trimmed.length > 0) { showOutput.value = true; leftRatio.value = 0.2 }
   else if (showOutput.value && trimmed.length === 0) { showOutput.value = false }
-  if (t) clearTimeout(t as any)
-  t = window.setTimeout(() => {
+  if (timeoutId) clearTimeout(timeoutId as any)
+  timeoutId = window.setTimeout(() => {
     if (!trimmed) { output.value = ''; error.value = ''; return }
     
     // 检查是否为有效的XML
@@ -232,7 +235,7 @@ function handleInputChange(v: string) {
         output.value = '' 
         // 检查输入是否看起来像XML但格式错误
         const looksLikeXml = /^\s*<([A-Za-z_][\w\-\.:]*)[\s\S]*>\s*$/.test(trimmed)
-        error.value = looksLikeXml ? '无法解析为XML' : '无法解析为JSON或XML'
+        error.value = looksLikeXml ? t('xml.parseXmlError') : t('xml.parseJsonOrXmlError')
       }
     }
   }, 200)
@@ -273,7 +276,7 @@ function undo() {
 
 <template>
   <PageContainer>
-    <PageHeader title="To Xml" @back="goBack">
+    <PageHeader :title="t('xml.title')" @back="goBack">
       <template #actions>
         <ConversionButton 
           current-tool="xml"
@@ -323,7 +326,7 @@ function undo() {
         <!-- 输入区域 -->
         <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
           <div class="toolbar">
-            <span>输入</span>
+            <span>{{ t('common.input') }}</span>
             <div class="flex items-center gap-2">
               <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
                 <RiArrowGoBackLine size="18px" />
@@ -343,7 +346,7 @@ function undo() {
         <!-- 输出区域 -->
         <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
           <div class="toolbar">
-          <span>XML 输出</span>
+          <span>{{ t('xml.output') }}</span>
           <div class="relative">
             <!-- 复制按钮 -->
             <ActionButton 
@@ -360,7 +363,7 @@ function undo() {
               v-else 
               class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
             >
-              已复制
+              {{ t('common.copied') }}
             </span>
           </div>
         </div>

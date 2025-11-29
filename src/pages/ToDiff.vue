@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useTranslation } from 'i18next-vue'
 import { RiClipboardLine, RiArrowGoBackLine } from '@remixicon/vue'
 import { editor } from 'monaco-editor'
 import { popToolState, getNextToolInput, setNextToolInput } from '@/utils/toolState'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionButton from '@/components/ActionButton.vue'
+
+const { t } = useTranslation()
 
 const original = ref('')
 const modified = ref('')
@@ -166,11 +169,11 @@ function goBack() {
 
 <template>
   <PageContainer>
-    <PageHeader title="To Diff" @back="goBack" />
+    <PageHeader :title="t('diff.title')" @back="goBack" />
     <div class="card">
       <div class="toolbar flex justify-between">
-        <span class="font-medium">内容A</span>
-        <span class="font-medium">内容B</span>
+        <span class="font-medium">{{ t('diff.contentA') }}</span>
+        <span class="font-medium">{{ t('diff.contentB') }}</span>
       </div>
       <div 
         ref="containerRef" 
