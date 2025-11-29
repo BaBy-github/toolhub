@@ -291,6 +291,13 @@ function undo() {
               path: '/2diff',
               icon: 'Δ',
               color: '#f97316'
+            },
+            {
+              name: 'escape',
+              label: 'To Escape',
+              path: '/2escape',
+              icon: '\\',
+              color: '#10b981'
             }
           ]"
           @conversion="(conversion) => {

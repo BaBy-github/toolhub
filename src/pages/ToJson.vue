@@ -232,6 +232,13 @@ function goToXml() {
               path: '/2xml',
               icon: 'XML',
               color: '#9333ea'
+            },
+            {
+              name: 'escape',
+              label: 'To Escape',
+              path: '/2escape',
+              icon: '\\',
+              color: '#10b981'
             }
           ]"
           @conversion="(conversion) => {

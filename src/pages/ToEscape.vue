@@ -7,13 +7,14 @@ import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionButton from '@/components/ActionButton.vue'
 import { escapeString, unescapeString } from '@/utils/escape'
-import { popToolState } from '@/utils/toolState'
+import { popToolState, getNextToolInput } from '@/utils/toolState'
 
 const input = ref('')
 const output = ref('')
 const showOutput = ref(false)
 const leftRatio = ref(0.2)
 const splitRef = ref<HTMLElement | null>(null)
+const settingsContainer = ref<HTMLElement | null>(null)
 const copied = ref(false)
 const router = useRouter()
 let t: number | null = null
@@ -25,6 +26,40 @@ const escapeSettings = ref({
   escapeSingleQuotes: true,
   escapeNewlines: true
 })
+
+// 从toolState获取初始值
+const nextInput = getNextToolInput()
+if (nextInput) {
+  input.value = nextInput
+  // 自动展开输出
+  showOutput.value = true
+  // 立即处理输入值，生成输出
+  try {
+    output.value = escapeString(nextInput, escapeSettings.value)
+  } catch (e) {
+    output.value = `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
+  }
+}
+
+// 用于跟踪鼠标是否在设置区域内
+let isMouseInSettings = false
+
+// 处理鼠标进入设置区域
+function handleSettingsMouseEnter() {
+  isMouseInSettings = true
+  showEscapeSettings.value = true
+}
+
+// 处理鼠标离开设置区域
+function handleSettingsMouseLeave() {
+  isMouseInSettings = false
+  // 延迟关闭，确保鼠标有足够时间从按钮移动到下拉框
+  setTimeout(() => {
+    if (!isMouseInSettings) {
+      showEscapeSettings.value = false
+    }
+  }, 100)
+}
 
 const options = { language: 'text', theme: 'vs', minimap: { enabled: false }, automaticLayout: true, wordWrap: "off" }
 const outOptions = { language: 'text', theme: 'vs', readOnly: true, minimap: { enabled: false }, automaticLayout: true, wordWrap: "on" }
@@ -116,10 +151,6 @@ watch(escapeSettings, () => {
   }
 }, { deep: true })
 
-function toggleEscapeSettings() {
-  showEscapeSettings.value = !showEscapeSettings.value
-}
-
 function clearInput() {
   input.value = ''
   showOutput.value = false
@@ -144,7 +175,7 @@ function goBack() {
 
 <template>
   <PageContainer>
-    <PageHeader title="字符串转义" @back="goBack" />
+    <PageHeader title="To Escape" @back="goBack" />
     
 
     
@@ -153,27 +184,42 @@ function goBack() {
       <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
         <div class="toolbar">
           <span>输入</span>
-          <ActionButton variant="ghost" title="转义设置" @click="toggleEscapeSettings">
-            <RiSettings3Line size="18px" />
-          </ActionButton>
-        </div>
-        
-        <!-- 转义设置选项框 -->
-        <div v-if="showEscapeSettings" class="mb-3 p-3 bg-gray-50 border rounded-md">
-          <h3 class="mb-2 text-sm font-medium">转义设置</h3>
-          <div class="space-y-2 text-sm">
-            <label class="flex items-center gap-2">
-              <input v-model="escapeSettings.escapeDoubleQuotes" type="checkbox" />
-              <span>转义双引号（"）</span>
-            </label>
-            <label class="flex items-center gap-2">
-              <input v-model="escapeSettings.escapeSingleQuotes" type="checkbox" />
-              <span>转义单引号（'）</span>
-            </label>
-            <label class="flex items-center gap-2">
-              <input v-model="escapeSettings.escapeNewlines" type="checkbox" />
-              <span>转义换行符（\r\n）</span>
-            </label>
+          <!-- 转义设置下拉菜单 - 重构版本 -->
+          <div class="relative" ref="settingsContainer">
+            <button 
+              class="p-2 rounded-md hover:bg-gray-100 transition-colors cursor-pointer" 
+              title="转义设置"
+              @click="showEscapeSettings = !showEscapeSettings"
+              @mouseenter="handleSettingsMouseEnter"
+            >
+              <RiSettings3Line size="18px" class="text-gray-600" />
+            </button>
+            
+            <!-- 转义设置选项框 -->
+            <div 
+              v-show="showEscapeSettings" 
+              class="absolute right-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-1000 transition-all duration-200 ease-in-out"
+              :class="{ 'opacity-100 translate-y-0 scale-100': showEscapeSettings, 'opacity-0 translate-y-[-5px] scale-95 pointer-events-none': !showEscapeSettings }"
+              @mouseenter="handleSettingsMouseEnter"
+              @mouseleave="handleSettingsMouseLeave"
+            >
+              <div class="p-3">
+                <div class="space-y-2">
+                  <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-md transition-colors">
+                    <input v-model="escapeSettings.escapeDoubleQuotes" type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" />
+                    <span class="text-sm text-gray-700">转义双引号（"）</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-md transition-colors">
+                    <input v-model="escapeSettings.escapeSingleQuotes" type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" />
+                    <span class="text-sm text-gray-700">转义单引号（'）</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-md transition-colors">
+                    <input v-model="escapeSettings.escapeNewlines" type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" />
+                    <span class="text-sm text-gray-700">转义换行符（\r\n）</span>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         
@@ -202,4 +248,10 @@ function goBack() {
   </PageContainer>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* 优化复选框样式 */
+input[type="checkbox"] {
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+</style>
