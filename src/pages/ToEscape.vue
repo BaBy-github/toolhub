@@ -233,14 +233,17 @@ function goBack() {
                   <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-md transition-colors">
                     <input v-model="escapeSettings.escapeDoubleQuotes" type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" />
                     <span class="text-sm text-gray-700">{{ t('escape.escapeDoubleQuotes') }}</span>
+                    <span class="text-xs text-gray-400">" → \"</span>
                   </label>
                   <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-md transition-colors">
                     <input v-model="escapeSettings.escapeSingleQuotes" type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" />
                     <span class="text-sm text-gray-700">{{ t('escape.escapeSingleQuotes') }}</span>
+                    <span class="text-xs text-gray-400">' → \'</span>
                   </label>
                   <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 rounded-md transition-colors">
                     <input v-model="escapeSettings.escapeNewlines" type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" />
                     <span class="text-sm text-gray-700">{{ t('escape.escapeNewlines') }}</span>
+                    <span class="text-xs text-gray-400">↵ → \n</span>
                   </label>
                 </div>
               </div>

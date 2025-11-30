@@ -71,9 +71,9 @@
     "escape": "Escape",
     "unescape": "Unescape",
     "settings": "Escape Settings",
-    "escapeDoubleQuotes": "Escape double quotes (\"",
-    "escapeSingleQuotes": "Escape single quotes ('",
-    "escapeNewlines": "Escape newlines (\\r\\n)"
+    "escapeDoubleQuotes": "double quotes",
+    "escapeSingleQuotes": "single quotes",
+    "escapeNewlines": "newlines"
   },
   "language": {
     "zh": "中文",

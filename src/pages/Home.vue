@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { useTranslation } from 'i18next-vue'
 import { i18n } from '@/i18n'
+import { RiTranslate2 } from '@remixicon/vue'
 
 const { t } = useTranslation()
 
 // 切换语言
-const changeLanguage = (lng: string) => {
-  i18n.changeLanguage(lng)
+const toggleLanguage = () => {
+  const currentLng = i18n.language
+  const newLng = currentLng === 'zh' ? 'en' : 'zh'
+  i18n.changeLanguage(newLng)
 }
 </script>
 
@@ -18,20 +21,14 @@ const changeLanguage = (lng: string) => {
           <h1 class="text-2xl font-semibold">{{ t('home.title') }}</h1>
           <p class="mt-2 text-sm text-gray-600">{{ t('home.subtitle') }}</p>
         </div>
-        <div class="flex gap-2">
-          <button 
-            @click="changeLanguage('zh')" 
-            class="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition"
-          >
-            {{ t('language.zh') }}
-          </button>
-          <button 
-            @click="changeLanguage('en')" 
-            class="px-3 py-1 text-sm rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
-          >
-            {{ t('language.en') }}
-          </button>
-        </div>
+        <button 
+          @click="toggleLanguage" 
+          class="flex items-center gap-2 px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 transform hover:scale-105"
+          title="切换语言"
+        >
+          <RiTranslate2 size="18px" class="transition-transform duration-300 hover:rotate-180" />
+          <span>{{ i18n.language === 'zh' ? t('language.en') : t('language.zh') }}</span>
+        </button>
       </div>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <router-link to="/2json" class="group card p-4 transition hover:shadow-md">
