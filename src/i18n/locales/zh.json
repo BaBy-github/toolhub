@@ -72,8 +72,11 @@
     "unescape": "反转义",
     "settings": "转义设置",
     "escapeDoubleQuotes": "双引号",
+    "unescapeDoubleQuotes": "双引号",
     "escapeSingleQuotes": "单引号",
-    "escapeNewlines": "换行符"
+    "unescapeSingleQuotes": "单引号",
+    "escapeNewlines": "换行符",
+    "unescapeNewlines": "换行符"
   },
   "language": {
     "zh": "中文",

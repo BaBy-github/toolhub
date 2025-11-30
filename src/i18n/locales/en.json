@@ -72,8 +72,11 @@
     "unescape": "Unescape",
     "settings": "Escape Settings",
     "escapeDoubleQuotes": "double quotes",
+    "unescapeDoubleQuotes": "double quotes",
     "escapeSingleQuotes": "single quotes",
-    "escapeNewlines": "newlines"
+    "unescapeSingleQuotes": "single quotes",
+    "escapeNewlines": "newlines",
+    "unescapeNewlines": "newlines"
   },
   "language": {
     "zh": "中文",
