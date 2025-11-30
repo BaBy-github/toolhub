@@ -24,6 +24,7 @@ let timeoutId: number | null = null
 
 // 转义设置
 const showEscapeSettings = ref(false)
+const isEscapeMode = ref(true) // true 表示转义模式，false 表示反转义模式
 const escapeSettings = ref({
   escapeDoubleQuotes: true,
   escapeSingleQuotes: true,
@@ -38,7 +39,7 @@ if (nextInput) {
   showOutput.value = true
   // 立即处理输入值，生成输出
   try {
-    output.value = escapeString(nextInput, escapeSettings.value)
+    output.value = isEscapeMode.value ? escapeString(nextInput, escapeSettings.value) : unescapeString(nextInput, escapeSettings.value)
   } catch (e) {
     output.value = `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
   }
@@ -135,7 +136,7 @@ watch(input, (newVal, oldVal) => {
   timeoutId = window.setTimeout(() => {
     if (!trimmed) { output.value = ''; return }
     try {
-      output.value = escapeString(trimmed, escapeSettings.value)
+      output.value = isEscapeMode.value ? escapeString(trimmed, escapeSettings.value) : unescapeString(trimmed, escapeSettings.value)
     } catch (e) {
       output.value = `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
     }
@@ -145,7 +146,7 @@ watch(input, (newVal, oldVal) => {
 // 监听转义设置变化
 watch(escapeSettings, () => {
   const trimmed = input.value.trim()
-  if (trimmed) {
+  if (trimmed && isEscapeMode.value) {
     try {
       output.value = escapeString(trimmed, escapeSettings.value)
     } catch (e) {
@@ -153,6 +154,18 @@ watch(escapeSettings, () => {
     }
   }
 }, { deep: true })
+
+// 监听模式变化，重新处理输入值
+watch(isEscapeMode, () => {
+  const trimmed = input.value.trim()
+  if (trimmed) {
+    try {
+      output.value = isEscapeMode.value ? escapeString(trimmed, escapeSettings.value) : unescapeString(trimmed, escapeSettings.value)
+    } catch (e) {
+      output.value = `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
+    }
+  }
+})
 
 function clearInput() {
   input.value = ''
@@ -187,10 +200,19 @@ function goBack() {
       <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
         <div class="toolbar">
           <span>{{ t('common.input') }}</span>
-          <!-- 转义设置下拉菜单 - 重构版本 -->
-          <div class="relative" ref="settingsContainer">
+          <div class="flex items-center">
+            <!-- 转义/反转义模式切换按钮 -->
             <button 
-              class="p-2 rounded-md hover:bg-gray-100 transition-colors cursor-pointer" 
+              class="px-3 py-1 text-sm rounded-l-md transition-colors cursor-pointer"
+              :class="isEscapeMode ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 'bg-green-100 text-green-800 hover:bg-green-200'"
+              @click="isEscapeMode = !isEscapeMode"
+            >
+              {{ isEscapeMode ? t('escape.escape') : t('escape.unescape') }}
+            </button>
+            <!-- 转义设置下拉菜单 - 重构版本 -->
+            <div class="relative" ref="settingsContainer">
+            <button 
+              class="p-2 rounded-r-md hover:bg-gray-100 transition-colors cursor-pointer border-l border-gray-200"
               :title="t('escape.settings')"
               @click="showEscapeSettings = !showEscapeSettings"
               @mouseenter="handleSettingsMouseEnter"
@@ -223,6 +245,7 @@ function goBack() {
                 </div>
               </div>
             </div>
+            </div>
           </div>
         </div>
         
@@ -237,7 +260,7 @@ function goBack() {
       <!-- 输出区域 -->
       <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
         <div class="toolbar">
-          <span>{{ t('escape.output') }}</span>
+          <span>{{ isEscapeMode ? t('escape.output') : t('escape.unescapeOutput') }}</span>
           <div class="relative">
             <!-- 复制按钮 -->
             <ActionButton 

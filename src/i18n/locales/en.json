@@ -67,9 +67,12 @@
   "escape": {
     "title": "To Escape",
     "output": "Escape Result",
+    "unescapeOutput": "Unescape Result",
+    "escape": "Escape",
+    "unescape": "Unescape",
     "settings": "Escape Settings",
-    "escapeDoubleQuotes": "Escape double quotes (\")",
-    "escapeSingleQuotes": "Escape single quotes (')",
+    "escapeDoubleQuotes": "Escape double quotes (\"",
+    "escapeSingleQuotes": "Escape single quotes ('",
     "escapeNewlines": "Escape newlines (\\r\\n)"
   },
   "language": {
