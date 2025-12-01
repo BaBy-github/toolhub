@@ -292,7 +292,7 @@ function undo() {
               name: 'diff',
               label: 'To Diff',
               path: '/2diff',
-              icon: 'Δ',
+              icon: '≠',
               color: '#f97316'
             },
             {
