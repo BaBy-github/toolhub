@@ -6,6 +6,35 @@ import { tools } from '@/data/tools'
 
 const { t } = useTranslation()
 
+// 颜色值映射
+const colorMap = {
+  blue: {
+    50: '#eff6ff',
+    600: '#2563eb'
+  },
+  green: {
+    50: '#ecfdf5',
+    600: '#059669'
+  },
+  purple: {
+    50: '#f5f3ff',
+    600: '#7c3aed'
+  },
+  orange: {
+    50: '#fff7ed',
+    600: '#ea580c'
+  },
+  yellow: {
+    50: '#fefce8',
+    600: '#ca8a04'
+  }
+}
+
+// 获取颜色值函数
+const getColorValue = (color: string, shade: number) => {
+  return colorMap[color as keyof typeof colorMap]?.[shade as keyof typeof colorMap.blue] || '#f3f4f6'
+}
+
 // 切换语言
 const toggleLanguage = () => {
   const currentLng = i18n.language
@@ -39,7 +68,10 @@ const toggleLanguage = () => {
           class="group card p-4 transition hover:shadow-md"
         >
           <div class="mb-3 flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl" :class="`bg-${tool.color}-50 text-${tool.color}-600`">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl" :style="{
+              backgroundColor: getColorValue(tool.color, 50),
+              color: getColorValue(tool.color, 600)
+            }">
               {{ tool.icon }}
             </div>
             <div>
