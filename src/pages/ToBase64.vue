@@ -14,6 +14,7 @@ import ActionButton from '@/components/ActionButton.vue'
 const router = useRouter()
 const dropRef = ref<HTMLElement | null>(null)
 const splitRef = ref<HTMLElement | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null)
 const showOutput = ref(false)
 const output = ref('')
 const copied = ref(false)
@@ -245,8 +246,22 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
           </div>
         </div>
         <div v-else class="h-[60vh]">
-          <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
+          <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full relative">
             <CodeEditor v-model:value="inputText" language="plaintext" theme="vs" :options="inOptions" height="100%" width="100%" />
+            <!-- 隐藏的文件输入 -->
+            <input ref="fileInput" type="file" class="hidden" @change="(e) => handleFiles((e.target as HTMLInputElement).files)" />
+            <!-- 悬浮上传层 -->
+            <div v-if="!inputText.trim()" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
+              <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg text-center pointer-events-auto transform transition-all duration-300 hover:shadow-xl">
+                <button 
+                  @click="fileInput?.click()" 
+                  class="flex flex-col items-center justify-center gap-2 mb-4 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <span class="text-lg font-medium">上传文件</span>
+                </button>
+                <p class="text-gray-600 text-sm">编辑或拖入文件到此处</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
