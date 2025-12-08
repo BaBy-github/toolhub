@@ -1,35 +1,39 @@
 @import "tailwindcss";
 
 .btn {
-  @apply inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 px-1 py-1 text-sm transition;
+  @apply inline-flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-1 text-sm transition-colors duration-300;
 }
 .btn-primary {
-  @apply border-blue-600 bg-blue-600 text-white hover:bg-blue-700;
+  @apply border-blue-600 dark:border-blue-700 bg-blue-600 dark:bg-blue-700 text-white dark:text-white hover:bg-blue-700 dark:hover:bg-blue-800;
 }
 .btn-ghost {
-  @apply border-transparent bg-transparent text-gray-700 hover:bg-gray-100;
+  @apply border-transparent dark:border-transparent bg-transparent dark:bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800;
 }
 .card {
-  @apply rounded-2xl border bg-white shadow-sm overflow-hidden;
+  @apply rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 overflow-hidden transition-all duration-300;
 }
 .toolbar {
-  @apply border-b bg-gray-50 px-3 py-2 text-sm text-gray-600 flex items-center justify-between;
+  @apply border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 flex items-center justify-between transition-colors duration-300;
 }
 .icon-btn {
-  @apply inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition;
+  @apply inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-300;
 }
 
 /* Compact tree view wrapper */
 .json-tree-compact {
   font-size: 0.75rem;
   line-height: 1.2;
+  color: inherit;
 }
 .json-tree-compact ul {
-  border-left: 1px solid #e5e7eb;
+  border-left: 1px solid #e5e7eb dark:border-gray-700;
   margin-left: 0.25rem;
   padding-left: 0.5rem;
 }
 .json-tree-compact li {
   padding-top: 1px;
   padding-bottom: 1px;
+}
+.dark .json-tree-compact ul {
+  border-left: 1px solid #374151;
 }
