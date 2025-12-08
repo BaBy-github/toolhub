@@ -81,5 +81,14 @@
   "language": {
     "zh": "中文",
     "en": "English"
+  },
+  "nav": {
+    "home": "Home",
+    "tools": "Tools",
+    "about": "About",
+    "contact": "Contact",
+    "toggleLanguage": "Toggle Language",
+    "toggleDarkMode": "Toggle Theme",
+    "openMenu": "Open Menu"
   }
 }

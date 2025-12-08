@@ -1,33 +1,23 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { useTranslation } from 'i18next-vue'
 
-const isFooterVisible = ref(false)
-
-const handleMouseMove = (e: MouseEvent) => {
-  // 当鼠标移动到页面底部50px范围内时显示footer
-  if (e.clientY > window.innerHeight - 50) {
-    isFooterVisible.value = true
-  } else {
-    isFooterVisible.value = false
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('mousemove', handleMouseMove)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('mousemove', handleMouseMove)
-})
+const { t } = useTranslation()
 </script>
 
 <template>
   <router-view />
-  <footer 
-    class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white text-center py-3 px-4 text-sm transform transition-transform duration-300 ease-in-out" 
-    :class="isFooterVisible ? 'translate-y-0' : '-translate-y-full'"
-  >
-    <p>粤ICP备2020138557号-5</p>
+  <footer class="bg-gray-900 text-gray-300">
+    <div class="mx-auto max-w-7xl px-6 py-12">
+      <!-- Bottom Line -->
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <p class="text-sm text-gray-500">
+            © {{ new Date().getFullYear() }} ToolHub, Inc. 
+          </p>
+          <div class="mt-4 md:mt-0">
+            <p class="text-sm text-gray-500">粤ICP备2020138557号-5</p>
+          </div>
+        </div>
+    </div>
   </footer>
 </template>
 

@@ -81,5 +81,14 @@
   "language": {
     "zh": "中文",
     "en": "English"
+  },
+  "nav": {
+    "home": "首页",
+    "tools": "工具",
+    "about": "关于",
+    "contact": "联系我们",
+    "toggleLanguage": "切换语言",
+    "toggleDarkMode": "切换主题",
+    "openMenu": "打开菜单"
   }
 }
