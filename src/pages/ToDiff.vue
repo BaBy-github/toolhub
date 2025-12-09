@@ -30,7 +30,6 @@ const diffOptions = {
   theme: 'vs',
   minimap: { enabled: false },
   automaticLayout: true,
-  readOnly: false,
   renderSideBySide: true,
   // 设置左侧最小宽度为20%
   diffEditor: {
@@ -57,11 +56,14 @@ onMounted(() => {
   
   // 确保原始内容编辑器可编辑
   const originalEditor = diffEditor.getOriginalEditor()
-  originalEditor.updateOptions({ readOnly: false })
+  originalEditor.updateOptions({ readOnly: false, cursorBlinking: 'blink' })
   
   // 确保修改后内容编辑器可编辑
   const modifiedEditor = diffEditor.getModifiedEditor()
-  modifiedEditor.updateOptions({ readOnly: false })
+  modifiedEditor.updateOptions({ readOnly: false, cursorBlinking: 'blink' })
+  
+  // 立即聚焦到原始编辑器，确保可以输入
+  originalEditor.focus()
   
   // 监听原始内容变化
   originalModel.onDidChangeContent(() => {
@@ -171,10 +173,38 @@ function goBack() {
   <PageContainer>
     <PageHeader :title="t('diff.title')" @back="goBack" />
     <div class="card">
-      <div class="toolbar flex justify-between">
-        <span class="font-medium">{{ t('diff.contentA') }}</span>
-        <span class="font-medium">{{ t('diff.contentB') }}</span>
+      <!-- 采用Tailwind CSS UI Blocks设计风格的标题区域 -->
+      <div class="toolbar flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
+        <div class="flex items-center gap-3">
+          <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">
+            A
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ t('diff.contentA') }}
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ t('home.toDiff.description') }}
+            </p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <div class="h-8 w-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-sm">
+            B
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ t('diff.contentB') }}
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ t('home.toDiff.description') }}
+            </p>
+          </div>
+        </div>
       </div>
+      
+      <!-- Diff编辑器 -->
       <div 
         ref="containerRef" 
         class="h-[60vh] overflow-hidden"
