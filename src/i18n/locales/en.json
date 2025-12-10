@@ -15,6 +15,8 @@
   "home": {
     "title": "Tool Hub",
     "subtitle": "Select a tool to get started",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
     "toJson": {
       "title": "To Json",
       "description": "Json string, escaped Json string",

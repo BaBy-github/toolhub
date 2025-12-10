@@ -47,20 +47,6 @@ const getColorValue = (color: string, shade: number) => {
           <p class="mx-auto max-w-2xl text-lg leading-8 text-gray-600 dark:text-gray-300 sm:text-xl">
             {{ t('home.subtitle') }}
           </p>
-          <div class="mt-10 flex items-center justify-center gap-4">
-            <a 
-              href="#tools" 
-              class="rounded-lg bg-blue-600 dark:bg-blue-700 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors duration-300"
-            >
-              {{ t('home.getStarted') }}
-            </a>
-            <a 
-              href="#about" 
-              class="rounded-lg bg-white dark:bg-gray-800 px-6 py-3 text-base font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-300"
-            >
-              {{ t('home.learnMore') }}
-            </a>
-          </div>
         </div>
       </div>
       <!-- Decorative elements -->

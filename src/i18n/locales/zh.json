@@ -15,6 +15,8 @@
   "home": {
     "title": "工具中心",
     "subtitle": "选择一个工具开始使用",
+    "getStarted": "开始使用",
+    "learnMore": "了解更多",
     "toJson": {
       "title": "To Json",
       "description": "Json字符串、带转义的Json字符串",
