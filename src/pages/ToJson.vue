@@ -14,6 +14,7 @@ import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionButton from '@/components/ActionButton.vue'
 import ConversionButton from '@/components/ConversionButton.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const input = ref('')
 const output = ref('')
@@ -25,6 +26,7 @@ const copied = ref(false)
 const viewMode = ref<'code' | 'tree' | 'columns'>('code')
 const router = useRouter()
 const route = useRoute()
+const isLoading = ref(true)
 let timeoutId: number | null = null
 const history = ref<string[]>([''])
 const cursor = ref(0)
@@ -115,6 +117,9 @@ onMounted(() => {
     showOutput.value = true
     handleInputChange(input.value)
   }
+  
+  // 内容加载完成，隐藏骨架屏
+  isLoading.value = false
 })
 
 watch(leftRatio, async () => {
@@ -217,113 +222,118 @@ function goToXml() {
 
 <template>
   <PageContainer>
-    <PageHeader :title="t('json.title')" @back="goBack">
-      <template #actions>
-        <ConversionButton 
-          current-tool="json"
-          :conversions="[
-            {
-              name: 'diff',
-              label: 'To Diff',
-              path: '/2diff',
-              icon: '≠',
-              color: '#f97316'
-            },
-            {
-              name: 'xml',
-              label: 'To Xml',
-              path: '/2xml',
-              icon: 'XML',
-              color: '#9333ea'
-            },
-            {
-              name: 'escape',
-              label: 'To Escape',
-              path: '/2escape',
-              icon: '\\',
-              color: '#10b981'
-            }
-          ]"
-          @conversion="(conversion) => {
-            // 保存当前状态
-            pushToolState({
-              path: '/2json',
-              input: input,
-              output: output,
-              showOutput: showOutput,
-              leftRatio: leftRatio,
-              viewMode: viewMode
-            })
-            // 使用toolState传递值，而不是URL query参数
-            setNextToolInput(output)
-            // 跳转到目标工具页面
-            router.push({
-              path: conversion.path
-            })
-          }"
-        />
-      </template>
-    </PageHeader>
-      <div ref="splitRef" class="flex gap-0">
-        <!-- 输入区域 -->
-        <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
-          <div class="toolbar">
-            <span>{{ t('common.input') }}</span>
-            <div class="flex items-center gap-2">
-              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
-                <RiArrowGoBackLine size="18px" />
-              </ActionButton>
-            </div>
-          </div>
-          <div class="h-[60vh]">
-            <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
-          </div>
-        </div>
-
-        <!-- 分割线 -->
-        <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
-
-        <!-- 输出区域 -->
-        <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
-          <div class="toolbar">
-            <span>{{ t('common.output') }}</span>
-            <div class="relative">
-              <!-- 复制按钮 -->
-              <ActionButton 
-                v-if="!copied" 
-                variant="ghost" 
-                title="复制" 
-                @click="copyOutput"
-                class="transition-all duration-300"
-              >
-                <RiClipboardLine size="18px" />
-              </ActionButton>
-              <!-- 已复制文字 -->
-              <span 
-                v-else 
-                class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
-              >
-                {{ t('common.copied') }}
-              </span>
-            </div>
-          </div>
-          <div class="h-[60vh]">
-            <CodeEditor v-if="viewMode==='code'" v-model:value="output" language="json" theme="vs" :options="outOptions" height="100%" width="100%" />
-            <div v-else-if="viewMode==='tree'" class="h-full overflow-auto text-xs leading-tight json-tree-compact">
-              <JsonTreeView :json="output || ''" :maxDepth="4" />
-            </div>
-            <JsonColumns v-else :value="output ? JSON.parse(output) : null" />
-            <div class="absolute right-2 bottom-2">
-              <div class="flex rounded-lg border overflow-hidden bg-white">
-                <button :class="['px-2 py-1 text-xs', viewMode==='code' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='code'"> {{ t('common.code') }}</button>
-                <button :class="['px-2 py-1 text-xs', viewMode==='tree' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='tree'"> {{ t('common.tree') }}</button>
-                <button :class="['px-2 py-1 text-xs', viewMode==='columns' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='columns'"> {{ t('common.columns') }}</button>
+    <template v-if="isLoading">
+      <SkeletonLoader />
+    </template>
+    <template v-else>
+      <PageHeader :title="t('json.title')" @back="goBack">
+        <template #actions>
+          <ConversionButton 
+            current-tool="json"
+            :conversions="[
+              {
+                name: 'diff',
+                label: 'To Diff',
+                path: '/2diff',
+                icon: '≠',
+                color: '#f97316'
+              },
+              {
+                name: 'xml',
+                label: 'To Xml',
+                path: '/2xml',
+                icon: 'XML',
+                color: '#9333ea'
+              },
+              {
+                name: 'escape',
+                label: 'To Escape',
+                path: '/2escape',
+                icon: '\\',
+                color: '#10b981'
+              }
+            ]"
+            @conversion="(conversion) => {
+              // 保存当前状态
+              pushToolState({
+                path: '/2json',
+                input: input,
+                output: output,
+                showOutput: showOutput,
+                leftRatio: leftRatio,
+                viewMode: viewMode
+              })
+              // 使用toolState传递值，而不是URL query参数
+              setNextToolInput(output)
+              // 跳转到目标工具页面
+              router.push({
+                path: conversion.path
+              })
+            }"
+          />
+        </template>
+      </PageHeader>
+        <div ref="splitRef" class="flex gap-0">
+          <!-- 输入区域 -->
+          <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
+            <div class="toolbar">
+              <span>{{ t('common.input') }}</span>
+              <div class="flex items-center gap-2">
+                <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
+                  <RiArrowGoBackLine size="18px" />
+                </ActionButton>
               </div>
             </div>
+            <div class="h-[60vh]">
+              <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
+            </div>
           </div>
-          <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
+
+          <!-- 分割线 -->
+          <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
+
+          <!-- 输出区域 -->
+          <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
+            <div class="toolbar">
+              <span>{{ t('common.output') }}</span>
+              <div class="relative">
+                <!-- 复制按钮 -->
+                <ActionButton 
+                  v-if="!copied" 
+                  variant="ghost" 
+                  title="复制" 
+                  @click="copyOutput"
+                  class="transition-all duration-300"
+                >
+                  <RiClipboardLine size="18px" />
+                </ActionButton>
+                <!-- 已复制文字 -->
+                <span 
+                  v-else 
+                  class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
+                >
+                  {{ t('common.copied') }}
+                </span>
+              </div>
+            </div>
+            <div class="h-[60vh]">
+              <CodeEditor v-if="viewMode==='code'" v-model:value="output" language="json" theme="vs" :options="outOptions" height="100%" width="100%" />
+              <div v-else-if="viewMode==='tree'" class="h-full overflow-auto text-xs leading-tight json-tree-compact">
+                <JsonTreeView :json="output || ''" :maxDepth="4" />
+              </div>
+              <JsonColumns v-else :value="output ? JSON.parse(output) : null" />
+              <div class="absolute right-2 bottom-2">
+                <div class="flex rounded-lg border overflow-hidden bg-white">
+                  <button :class="['px-2 py-1 text-xs', viewMode==='code' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='code'"> {{ t('common.code') }}</button>
+                  <button :class="['px-2 py-1 text-xs', viewMode==='tree' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='tree'"> {{ t('common.tree') }}</button>
+                  <button :class="['px-2 py-1 text-xs', viewMode==='columns' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='columns'"> {{ t('common.columns') }}</button>
+                </div>
+              </div>
+            </div>
+            <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
+          </div>
         </div>
-      </div>
+    </template>
   </PageContainer>
 </template>
 

@@ -16,6 +16,7 @@ const modified = ref('')
 const router = useRouter()
 const route = useRoute()
 const containerRef = ref<HTMLElement | null>(null)
+const isLoading = ref(true)
 let diffEditor: editor.IStandaloneDiffEditor | null = null
 let originalModel: editor.ITextModel | null = null
 let modifiedModel: editor.ITextModel | null = null
@@ -139,6 +140,9 @@ onMounted(() => {
     }
   `
   document.head.appendChild(style)
+  
+  // 内容加载完成，隐藏骨架屏
+  isLoading.value = false
 })
 
 onUnmounted(() => {
@@ -171,46 +175,51 @@ function goBack() {
 
 <template>
   <PageContainer>
-    <PageHeader :title="t('diff.title')" @back="goBack" />
-    <div class="card">
-      <!-- 采用Tailwind CSS UI Blocks设计风格的标题区域 -->
-      <div class="toolbar flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
-        <div class="flex items-center gap-3">
-          <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">
-            A
+    <template v-if="isLoading">
+      <SkeletonLoader />
+    </template>
+    <template v-else>
+      <PageHeader :title="t('diff.title')" @back="goBack" />
+      <div class="card">
+        <!-- 采用Tailwind CSS UI Blocks设计风格的标题区域 -->
+        <div class="toolbar flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
+          <div class="flex items-center gap-3">
+            <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">
+              A
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                {{ t('diff.contentA') }}
+              </h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                {{ t('home.toDiff.description') }}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('diff.contentA') }}
-            </h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-              {{ t('home.toDiff.description') }}
-            </p>
+          
+          <div class="flex items-center gap-3">
+            <div class="h-8 w-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-sm">
+              B
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                {{ t('diff.contentB') }}
+              </h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                {{ t('home.toDiff.description') }}
+              </p>
+            </div>
           </div>
         </div>
         
-        <div class="flex items-center gap-3">
-          <div class="h-8 w-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-sm">
-            B
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('diff.contentB') }}
-            </h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-              {{ t('home.toDiff.description') }}
-            </p>
-          </div>
-        </div>
+        <!-- Diff编辑器 -->
+        <div 
+          ref="containerRef" 
+          class="h-[60vh] overflow-hidden"
+          style="width: 100%; box-sizing: border-box;"
+        ></div>
       </div>
-      
-      <!-- Diff编辑器 -->
-      <div 
-        ref="containerRef" 
-        class="h-[60vh] overflow-hidden"
-        style="width: 100%; box-sizing: border-box;"
-      ></div>
-    </div>
+    </template>
   </PageContainer>
 </template>
 

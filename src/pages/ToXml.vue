@@ -23,6 +23,7 @@ const dropRef = ref<HTMLElement | null>(null)
 const copied = ref(false)
 const router = useRouter()
 const route = useRoute()
+const isLoading = ref(true)
 let timeoutId: number | null = null
 const history = ref<string[]>([''])
 const cursor = ref(0)
@@ -194,6 +195,9 @@ onMounted(async () => {
     showOutput.value = true
     handleInputChange(input.value)
   }
+  
+  // 内容加载完成，隐藏骨架屏
+  isLoading.value = false
 })
 onBeforeUnmount(() => {
   if (moveHandler) window.removeEventListener('mousemove', moveHandler as any)
@@ -276,103 +280,108 @@ function undo() {
 
 <template>
   <PageContainer>
-    <PageHeader :title="t('xml.title')" @back="goBack">
-      <template #actions>
-        <ConversionButton 
-          current-tool="xml"
-          :conversions="[
-            {
-              name: 'json',
-              label: 'To Json',
-              path: '/2json',
-              icon: '{}',
-              color: '#3b82f6'
-            },
-            {
-              name: 'diff',
-              label: 'To Diff',
-              path: '/2diff',
-              icon: '≠',
-              color: '#f97316'
-            },
-            {
-              name: 'escape',
-              label: 'To Escape',
-              path: '/2escape',
-              icon: '\\',
-              color: '#10b981'
-            }
-          ]"
-          @conversion="(conversion) => {
-            // 保存当前状态
-            pushToolState({
-              path: '/2xml',
-              input: input,
-              output: output,
-              showOutput: showOutput,
-              leftRatio: leftRatio
-            })
-            // 使用toolState传递值，而不是URL query参数
-            setNextToolInput(output)
-            // 跳转到目标工具页面
-            router.push({
-              path: conversion.path
-            })
-          }"
-        />
-      </template>
-    </PageHeader>
-      <div ref="splitRef" class="flex gap-0">
-        <!-- 输入区域 -->
-        <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
-          <div class="toolbar">
-            <span>{{ t('common.input') }}</span>
-            <div class="flex items-center gap-2">
-              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
-                <RiArrowGoBackLine size="18px" />
+    <template v-if="isLoading">
+      <SkeletonLoader />
+    </template>
+    <template v-else>
+      <PageHeader :title="t('xml.title')" @back="goBack">
+        <template #actions>
+          <ConversionButton 
+            current-tool="xml"
+            :conversions="[
+              {
+                name: 'json',
+                label: 'To Json',
+                path: '/2json',
+                icon: '{}',
+                color: '#3b82f6'
+              },
+              {
+                name: 'diff',
+                label: 'To Diff',
+                path: '/2diff',
+                icon: '≠',
+                color: '#f97316'
+              },
+              {
+                name: 'escape',
+                label: 'To Escape',
+                path: '/2escape',
+                icon: '\\',
+                color: '#10b981'
+              }
+            ]"
+            @conversion="(conversion) => {
+              // 保存当前状态
+              pushToolState({
+                path: '/2xml',
+                input: input,
+                output: output,
+                showOutput: showOutput,
+                leftRatio: leftRatio
+              })
+              // 使用toolState传递值，而不是URL query参数
+              setNextToolInput(output)
+              // 跳转到目标工具页面
+              router.push({
+                path: conversion.path
+              })
+            }"
+          />
+        </template>
+      </PageHeader>
+        <div ref="splitRef" class="flex gap-0">
+          <!-- 输入区域 -->
+          <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
+            <div class="toolbar">
+              <span>{{ t('common.input') }}</span>
+              <div class="flex items-center gap-2">
+                <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
+                  <RiArrowGoBackLine size="18px" />
+                </ActionButton>
+              </div>
+            </div>
+            <div class="h-[60vh]">
+              <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
+                <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
+              </div>
+            </div>
+          </div>
+
+          <!-- 分割线 -->
+          <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
+
+          <!-- 输出区域 -->
+          <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
+            <div class="toolbar">
+            <span>{{ t('xml.output') }}</span>
+            <div class="relative">
+              <!-- 复制按钮 -->
+              <ActionButton 
+                v-if="!copied" 
+                variant="ghost" 
+                title="复制" 
+                @click="copyOutput"
+                class="transition-all duration-300"
+              >
+                <RiClipboardLine size="18px" />
               </ActionButton>
+              <!-- 已复制文字 -->
+              <span 
+                v-else 
+                class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
+              >
+                {{ t('common.copied') }}
+              </span>
             </div>
           </div>
-          <div class="h-[60vh]">
-            <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
-              <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
+            <div class="h-[60vh]">
+              <CodeEditor v-model:value="output" language="xml" theme="vs" :options="outOptions" height="100%" width="100%" />
             </div>
+            <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
           </div>
         </div>
-
-        <!-- 分割线 -->
-        <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
-
-        <!-- 输出区域 -->
-        <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
-          <div class="toolbar">
-          <span>{{ t('xml.output') }}</span>
-          <div class="relative">
-            <!-- 复制按钮 -->
-            <ActionButton 
-              v-if="!copied" 
-              variant="ghost" 
-              title="复制" 
-              @click="copyOutput"
-              class="transition-all duration-300"
-            >
-              <RiClipboardLine size="18px" />
-            </ActionButton>
-            <!-- 已复制文字 -->
-            <span 
-              v-else 
-              class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
-            >
-              {{ t('common.copied') }}
-            </span>
-          </div>
-        </div>
-          <div class="h-[60vh]">
-            <CodeEditor v-model:value="output" language="xml" theme="vs" :options="outOptions" height="100%" width="100%" />
-          </div>
-          <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
-        </div>
-      </div>
+    </template>
   </PageContainer>
 </template>
 

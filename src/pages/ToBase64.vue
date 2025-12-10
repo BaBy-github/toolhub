@@ -10,6 +10,7 @@ import { popToolState } from '@/utils/toolState'
 import PageContainer from '@/components/PageContainer.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionButton from '@/components/ActionButton.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const router = useRouter()
 const dropRef = ref<HTMLElement | null>(null)
@@ -27,6 +28,7 @@ const inputText = ref('')
 const history = ref<string[]>([''])
 const cursor = ref(0)
 const applying = ref(false)
+const isLoading = ref(true)
 const canUndo = computed(() => cursor.value > 0 && !fileInfo.value)
 
 const leftWidth = computed(() => `${Math.round(leftRatio.value * 100)}%`)
@@ -150,6 +152,9 @@ function goBack() {
 onMounted(async () => {
   await nextTick()
   window.addEventListener('paste', onPaste as any)
+  
+  // 内容加载完成，隐藏骨架屏
+  isLoading.value = false
 })
 onBeforeUnmount(() => {
   if (moveHandler) window.removeEventListener('mousemove', moveHandler as any)
@@ -225,86 +230,91 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
 
 <template>
   <PageContainer>
-    <PageHeader :title="t('base64.title')" @back="goBack" />
+    <template v-if="isLoading">
+      <SkeletonLoader />
+    </template>
+    <template v-else>
+      <PageHeader :title="t('base64.title')" @back="goBack" />
 
-    <div ref="splitRef" class="flex gap-0">
-      <!-- 输入区域 -->
-      <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
-        <div class="toolbar">
-          <span>{{ fileInfo ? t('base64.fileInfo') : t('common.input') }}</span>
-          <div class="flex items-center gap-2">
-            <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
-              <RiArrowGoBackLine size="18px" />
-            </ActionButton>
-          </div>
-        </div>
-        <div v-if="fileInfo" class="p-4 text-sm text-gray-700">
-          <div>
-            <div>名称：{{ fileInfo.name }}</div>
-            <div>大小：{{ formatBytes(fileInfo.size) }}</div>
-            <div>类型：{{ fileInfo.type || '未知' }}</div>
-          </div>
-        </div>
-        <div v-else class="h-[60vh]">
-          <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full relative">
-            <CodeEditor v-model:value="inputText" language="plaintext" theme="vs" :options="inOptions" height="100%" width="100%" />
-            <!-- 隐藏的文件输入 -->
-            <input ref="fileInput" type="file" class="hidden" @change="(e) => handleFiles((e.target as HTMLInputElement).files)" />
-            <!-- 悬浮上传层 -->
-            <div v-if="!inputText.trim()" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
-              <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg text-center pointer-events-auto transform transition-all duration-300 hover:shadow-xl">
-                <button 
-                  @click="fileInput?.click()" 
-                  class="flex flex-col items-center justify-center gap-2 mb-4 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  <span class="text-lg font-medium">上传文件</span>
-                </button>
-                <p class="text-gray-600 text-sm">编辑或拖入文件到此处</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 分割线 -->
-      <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
-
-      <!-- 输出区域 -->
-      <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
-        <div class="toolbar">
-            <span>{{ t('base64.output') }}</span>
+      <div ref="splitRef" class="flex gap-0">
+        <!-- 输入区域 -->
+        <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
+          <div class="toolbar">
+            <span>{{ fileInfo ? t('base64.fileInfo') : t('common.input') }}</span>
             <div class="flex items-center gap-2">
-              <label class="inline-flex items-center gap-1 text-xs text-gray-600">
-                <input type="checkbox" v-model="withPrefix" @change="() => { if (fileInfo) showOutput = true }" />
-                {{ t('base64.prefix') }}
-              </label>
-              <div class="relative">
-                <!-- 复制按钮 -->
-                <ActionButton 
-                  v-if="!copied" 
-                  variant="ghost" 
-                  title="复制" 
-                  @click="copyOutput"
-                  class="transition-all duration-300"
-                >
-                  <RiClipboardLine size="18px" />
-                </ActionButton>
-                <!-- 已复制文字 -->
-              <span 
-                v-else 
-                class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
-              >
-                {{ t('common.copied') }}
-              </span>
+              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
+                <RiArrowGoBackLine size="18px" />
+              </ActionButton>
+            </div>
+          </div>
+          <div v-if="fileInfo" class="p-4 text-sm text-gray-700">
+            <div>
+              <div>名称：{{ fileInfo.name }}</div>
+              <div>大小：{{ formatBytes(fileInfo.size) }}</div>
+              <div>类型：{{ fileInfo.type || '未知' }}</div>
+            </div>
+          </div>
+          <div v-else class="h-[60vh]">
+            <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full relative">
+              <CodeEditor v-model:value="inputText" language="plaintext" theme="vs" :options="inOptions" height="100%" width="100%" />
+              <!-- 隐藏的文件输入 -->
+              <input ref="fileInput" type="file" class="hidden" @change="(e) => handleFiles((e.target as HTMLInputElement).files)" />
+              <!-- 悬浮上传层 -->
+              <div v-if="!inputText.trim()" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg text-center pointer-events-auto transform transition-all duration-300 hover:shadow-xl">
+                  <button 
+                    @click="fileInput?.click()" 
+                    class="flex flex-col items-center justify-center gap-2 mb-4 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span class="text-lg font-medium">上传文件</span>
+                  </button>
+                  <p class="text-gray-600 text-sm">编辑或拖入文件到此处</p>
+                </div>
               </div>
             </div>
           </div>
-        <div class="h-[60vh]">
-          <CodeEditor v-model:value="output" language="plaintext" theme="vs" :options="outOptions" height="100%" width="100%" />
         </div>
-        <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
+
+        <!-- 分割线 -->
+        <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
+
+        <!-- 输出区域 -->
+        <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
+          <div class="toolbar">
+              <span>{{ t('base64.output') }}</span>
+              <div class="flex items-center gap-2">
+                <label class="inline-flex items-center gap-1 text-xs text-gray-600">
+                  <input type="checkbox" v-model="withPrefix" @change="() => { if (fileInfo) showOutput = true }" />
+                  {{ t('base64.prefix') }}
+                </label>
+                <div class="relative">
+                  <!-- 复制按钮 -->
+                  <ActionButton 
+                    v-if="!copied" 
+                    variant="ghost" 
+                    title="复制" 
+                    @click="copyOutput"
+                    class="transition-all duration-300"
+                  >
+                    <RiClipboardLine size="18px" />
+                  </ActionButton>
+                  <!-- 已复制文字 -->
+                <span 
+                  v-else 
+                  class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
+                >
+                  {{ t('common.copied') }}
+                </span>
+                </div>
+              </div>
+            </div>
+          <div class="h-[60vh]">
+            <CodeEditor v-model:value="output" language="plaintext" theme="vs" :options="outOptions" height="100%" width="100%" />
+          </div>
+          <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
+        </div>
       </div>
-    </div>
+    </template>
   </PageContainer>
 </template>
 
