@@ -90,6 +90,8 @@ function handleFiles(files: FileList | null) {
   const f = files.item(0)
   if (!f) return
   fileInfo.value = { name: f.name, size: f.size, type: f.type }
+  history.value = ['']
+  cursor.value = 0
   toBase64(f)
 }
 
@@ -107,13 +109,15 @@ function onPaste(e: ClipboardEvent) {
     const it = items[i]
     if (!it) continue
     if (it.kind === 'file') {
-      const f = it.getAsFile()
-      if (f) {
-        fileInfo.value = { name: f.name || '剪贴板文件', size: f.size, type: f.type }
-        toBase64(f)
-        break
-      }
+    const f = it.getAsFile()
+    if (f) {
+      fileInfo.value = { name: f.name || '剪贴板文件', size: f.size, type: f.type }
+      history.value = ['']
+      cursor.value = 0
+      toBase64(f)
+      break
     }
+  }
     if (it.kind === 'string' && it.type === 'text/plain') {
       it.getAsString((txt) => {
         inputText.value = txt || ''
@@ -183,16 +187,36 @@ function pushHistory(v: string) {
   if (applying.value) return
   const cur = cursor.value
   if (cur < history.value.length - 1) history.value = history.value.slice(0, cur + 1)
-  if (history.value[history.value.length - 1] !== v) {
-    history.value.push(v)
-    cursor.value = history.value.length - 1
-  }
+  history.value.push(v)
+  cursor.value = history.value.length - 1
 }
 function undo() {
-  if (cursor.value <= 0) return
-  cursor.value = cursor.value - 1
   applying.value = true
-  inputText.value = history.value[cursor.value] || ''
+  if (cursor.value <= 0) {
+    // 确保退回到完全清空状态
+    inputText.value = ''
+    output.value = ''
+    showOutput.value = false
+    cursor.value = 0
+  } else {
+    cursor.value = cursor.value - 1
+    inputText.value = history.value[cursor.value] || ''
+    // 手动更新output和showOutput，确保与inputText一致
+    const trimmed = inputText.value.trim()
+    if (!trimmed) {
+      if (!fileInfo.value) {
+        output.value = ''
+        showOutput.value = false
+      }
+    } else {
+      try {
+        output.value = encodeTextToBase64(trimmed)
+        showOutput.value = true
+      } catch {
+        error.value = t('base64.textEncodeError')
+      }
+    }
+  }
   applying.value = false
 }
 
@@ -236,18 +260,23 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
     <template v-else>
       <PageHeader :title="t('base64.title')" @back="goBack" />
 
-      <div ref="splitRef" class="flex gap-0">
+      <div ref="splitRef" class="flex gap-2">
         <!-- 输入区域 -->
         <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
           <div class="toolbar">
-            <span>{{ fileInfo ? t('base64.fileInfo') : t('common.input') }}</span>
             <div class="flex items-center gap-2">
-              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
-                <RiArrowGoBackLine size="18px" />
+              <span>{{ fileInfo ? t('base64.fileInfo') : t('common.input') }}</span>
+              <ActionButton variant="primary" size="sm" title="上传文件" @click="fileInput?.click()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </ActionButton>
+            </div>
+            <div class="flex items-center gap-2">
+              <ActionButton variant="ghost" icon-only size="sm" title="撤回" :disabled="!canUndo" @click="undo">
+                <RiArrowGoBackLine size="16px" />
               </ActionButton>
             </div>
           </div>
-          <div v-if="fileInfo" class="p-4 text-sm text-gray-700">
+          <div v-if="fileInfo" class="p-4 text-sm text-gray-700 rounded-b-2xl">
             <div>
               <div>名称：{{ fileInfo.name }}</div>
               <div>大小：{{ formatBytes(fileInfo.size) }}</div>
@@ -259,18 +288,6 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
               <CodeEditor v-model:value="inputText" language="plaintext" theme="vs" :options="inOptions" height="100%" width="100%" />
               <!-- 隐藏的文件输入 -->
               <input ref="fileInput" type="file" class="hidden" @change="(e) => handleFiles((e.target as HTMLInputElement).files)" />
-              <!-- 悬浮上传层 -->
-              <div v-if="!inputText.trim()" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
-                <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg text-center pointer-events-auto transform transition-all duration-300 hover:shadow-xl">
-                  <button 
-                    @click="fileInput?.click()" 
-                    class="flex flex-col items-center justify-center gap-2 mb-4 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <span class="text-lg font-medium">上传文件</span>
-                  </button>
-                  <p class="text-gray-600 text-sm">编辑或拖入文件到此处</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -292,11 +309,13 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
                   <ActionButton 
                     v-if="!copied" 
                     variant="ghost" 
+                    icon-only
+                    size="sm"
                     title="复制" 
                     @click="copyOutput"
                     class="transition-all duration-300"
                   >
-                    <RiClipboardLine size="18px" />
+                    <RiClipboardLine size="16px" />
                   </ActionButton>
                   <!-- 已复制文字 -->
                 <span 
