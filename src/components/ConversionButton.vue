@@ -98,12 +98,12 @@ onMounted(() => {
     
     <!-- 下拉菜单 -->
     <div 
-      class="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 z-1000"
+      class="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 z-1000"
     >
       <div 
         v-for="item in filteredConversions" 
         :key="item.name"
-        class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+        class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200"
         @click="handleConversion(item)"
       >
         <div 
@@ -112,7 +112,7 @@ onMounted(() => {
         >
           {{ item.icon }}
         </div>
-        <span class="text-sm font-medium">{{ item.label }}</span>
+        <span class="text-sm font-medium text-gray-900 dark:text-white">{{ item.label }}</span>
       </div>
     </div>
   </div>

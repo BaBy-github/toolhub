@@ -323,7 +323,7 @@ function goToXml() {
               </div>
               <JsonColumns v-else :value="output ? JSON.parse(output) : null" />
               <div class="absolute right-2 bottom-2">
-                <div class="flex rounded-lg border overflow-hidden bg-white">
+                <div class="flex rounded-lg border overflow-hidden bg-white dark:bg-gray-800 dark:border-gray-700">
                   <button :class="['px-2 py-1 text-xs', viewMode==='code' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='code'"> {{ t('common.code') }}</button>
                   <button :class="['px-2 py-1 text-xs', viewMode==='tree' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='tree'"> {{ t('common.tree') }}</button>
                   <button :class="['px-2 py-1 text-xs', viewMode==='columns' ? 'bg-blue-600 text-white' : 'btn-ghost']" @click="viewMode='columns'"> {{ t('common.columns') }}</button>

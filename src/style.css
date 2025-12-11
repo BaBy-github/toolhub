@@ -27,7 +27,7 @@
   color: inherit;
 }
 .json-tree-compact ul {
-  border-left: 1px solid #e5e7eb dark:border-gray-700;
+  border-left: 1px solid #e5e7eb;
   margin-left: 0.25rem;
   padding-left: 0.5rem;
 }
