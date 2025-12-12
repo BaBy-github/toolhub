@@ -68,6 +68,6 @@ export function useEditorState() {
     canUndo,
     handleInputChange,
     pushHistory,
-    undo
+    undo,
   }
 }

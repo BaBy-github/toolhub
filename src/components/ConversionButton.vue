@@ -18,7 +18,7 @@ const props = defineProps<{
 }>()
 
 // 定义组件事件
-const emit = defineEmits(['conversion']) 
+const emit = defineEmits(['conversion'])
 
 const router = useRouter()
 
@@ -33,7 +33,7 @@ function loadLastConversion() {
   if (saved) {
     const parsed = JSON.parse(saved)
     // 检查保存的转换是否仍在可用列表中
-    const conversion = props.conversions.find(c => c.name === parsed.name)
+    const conversion = props.conversions.find((c) => c.name === parsed.name)
     if (conversion) {
       lastConversion.value = conversion
     }
@@ -67,7 +67,7 @@ const filteredConversions = computed(() => {
   if (!displayConversion.value) {
     return props.conversions
   }
-  return props.conversions.filter(conversion => conversion.name !== displayConversion.value!.name)
+  return props.conversions.filter((conversion) => conversion.name !== displayConversion.value!.name)
 })
 
 // 组件挂载时加载上次转换选择
@@ -84,29 +84,39 @@ onMounted(() => {
       class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform"
       @click="handleConversion(displayConversion)"
     >
-      <div 
+      <div
         class="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-white"
         :style="{ color: displayConversion.color }"
       >
         {{ displayConversion.icon }}
       </div>
       <span class="text-sm font-medium">{{ displayConversion.label }}</span>
-      <svg class="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      <svg
+        class="w-4 h-4 transition-transform duration-300 group-hover:rotate-180"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 9l-7 7-7-7"
+        ></path>
       </svg>
     </button>
-    
+
     <!-- 下拉菜单 -->
-    <div 
+    <div
       class="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 z-1000"
     >
-      <div 
-        v-for="item in filteredConversions" 
+      <div
+        v-for="item in filteredConversions"
         :key="item.name"
         class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200"
         @click="handleConversion(item)"
       >
-        <div 
+        <div
           class="flex h-8 w-8 items-center justify-center rounded-lg"
           :style="{ backgroundColor: `${item.color}10`, color: item.color }"
         >

@@ -47,16 +47,22 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300"
+  >
     <!-- Header -->
-    <header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+    <header
+      class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300"
+    >
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <!-- Logo and Navigation -->
           <div class="flex items-center">
             <!-- Logo -->
             <a href="/" class="flex items-center gap-2">
-              <div class="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
+              <div
+                class="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold"
+              >
                 TH
               </div>
               <span class="text-xl font-bold text-gray-900 dark:text-white">ToolHub</span>
@@ -64,22 +70,40 @@ onMounted(() => {
 
             <!-- Desktop Navigation -->
             <nav class="hidden md:ml-10 md:flex md:items-center md:space-x-8">
-              <a href="/" class="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+              <a
+                href="/"
+                class="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+              >
                 {{ t('nav.home') }}
               </a>
-              <a href="/2json" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+              <a
+                href="/2json"
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+              >
                 {{ t('home.toJson.title') }}
               </a>
-              <a href="/2base64" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+              <a
+                href="/2base64"
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+              >
                 {{ t('home.toBase64.title') }}
               </a>
-              <a href="/2xml" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+              <a
+                href="/2xml"
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+              >
                 {{ t('home.toXml.title') }}
               </a>
-              <a href="/2diff" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+              <a
+                href="/2diff"
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+              >
                 {{ t('home.toDiff.title') }}
               </a>
-              <a href="/2escape" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+              <a
+                href="/2escape"
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+              >
                 {{ t('home.toEscape.title') }}
               </a>
             </nav>
@@ -129,7 +153,10 @@ onMounted(() => {
         </div>
 
         <!-- Mobile Navigation Menu -->
-        <div v-if="mobileMenuOpen" class="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors duration-300">
+        <div
+          v-if="mobileMenuOpen"
+          class="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors duration-300"
+        >
           <div class="space-y-1 px-4 py-3">
             <a
               href="/"
@@ -176,20 +203,18 @@ onMounted(() => {
         </div>
       </div>
     </header>
-    
+
     <!-- Main Content -->
     <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <router-view />
     </main>
-    
+
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-300 dark:bg-gray-900 dark:text-gray-300">
       <div class="mx-auto max-w-7xl px-6 py-12">
         <!-- Bottom Line -->
         <div class="flex flex-col md:flex-row justify-between items-center">
-          <p class="text-sm text-gray-500">
-            © {{ new Date().getFullYear() }} ToolHub, Inc. 
-          </p>
+          <p class="text-sm text-gray-500">© {{ new Date().getFullYear() }} ToolHub, Inc.</p>
           <div class="mt-4 md:mt-0">
             <p class="text-sm text-gray-500">粤ICP备2020138557号-5</p>
           </div>

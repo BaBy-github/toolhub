@@ -5,10 +5,10 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', component: () => import('@/pages/Home.vue') },
-    ...tools.map(tool => ({
+    ...tools.map((tool) => ({
       path: tool.path,
-      component: () => import(`@/pages/${tool.name}.vue`)
-    }))
+      component: () => import(`@/pages/${tool.name}.vue`),
+    })),
   ],
 })
 

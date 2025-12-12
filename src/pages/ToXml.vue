@@ -46,7 +46,13 @@ if (nextInput) {
 }
 
 const options = { theme: 'vs', minimap: { enabled: false }, automaticLayout: true }
-const outOptions = { language: 'xml', theme: 'vs', readOnly: true, minimap: { enabled: false }, automaticLayout: true }
+const outOptions = {
+  language: 'xml',
+  theme: 'vs',
+  readOnly: true,
+  minimap: { enabled: false },
+  automaticLayout: true,
+}
 
 const leftWidth = computed(() => `${Math.round(leftRatio.value * 100)}%`)
 const rightWidth = computed(() => `${100 - Math.round(leftRatio.value * 100)}%`)
@@ -84,7 +90,9 @@ function beginDrag(e: MouseEvent | TouchEvent) {
   window.addEventListener('touchend', upHandler as any)
 }
 
-watch(leftRatio, async () => { await nextTick() })
+watch(leftRatio, async () => {
+  await nextTick()
+})
 
 function clearInput() {
   input.value = ''
@@ -97,7 +105,9 @@ async function copyOutput() {
   try {
     await navigator.clipboard.writeText(output.value)
     copied.value = true
-    window.setTimeout(() => { copied.value = false }, 1000)
+    window.setTimeout(() => {
+      copied.value = false
+    }, 1000)
   } catch {}
 }
 
@@ -120,15 +130,15 @@ function goToJson() {
     input: input.value,
     output: output.value,
     showOutput: showOutput.value,
-    leftRatio: leftRatio.value
+    leftRatio: leftRatio.value,
   })
-  
+
   // 使用toolState传递值，而不是URL query参数
   setNextToolInput(output.value)
-  
+
   // 跳转到ToJson页面
   router.push({
-    path: '/2json'
+    path: '/2json',
   })
 }
 
@@ -139,15 +149,15 @@ function goToDiff() {
     input: input.value,
     output: output.value,
     showOutput: showOutput.value,
-    leftRatio: leftRatio.value
+    leftRatio: leftRatio.value,
   })
-  
+
   // 使用toolState传递值，而不是URL query参数
   setNextToolInput(output.value)
-  
+
   // 跳转到ToDiff页面
   router.push({
-    path: '/2diff'
+    path: '/2diff',
   })
 }
 
@@ -158,11 +168,17 @@ function onDrop(e: DragEvent) {
   const f = files.item(0)
   if (!f) return
   const r = new FileReader()
-  r.onload = () => { input.value = String(r.result || '') }
-  r.onerror = () => { error.value = t('xml.fileReadError') }
+  r.onload = () => {
+    input.value = String(r.result || '')
+  }
+  r.onerror = () => {
+    error.value = t('xml.fileReadError')
+  }
   r.readAsText(f)
 }
-function onDragover(e: DragEvent) { e.preventDefault() }
+function onDragover(e: DragEvent) {
+  e.preventDefault()
+}
 
 function onPaste(e: ClipboardEvent) {
   const items = e.clipboardData?.items
@@ -174,14 +190,20 @@ function onPaste(e: ClipboardEvent) {
       const f = it.getAsFile()
       if (f) {
         const r = new FileReader()
-        r.onload = () => { input.value = String(r.result || '') }
-        r.onerror = () => { error.value = t('xml.fileReadError') }
+        r.onload = () => {
+          input.value = String(r.result || '')
+        }
+        r.onerror = () => {
+          error.value = t('xml.fileReadError')
+        }
         r.readAsText(f)
         break
       }
     }
     if (it.kind === 'string' && it.type === 'text/plain') {
-      it.getAsString((txt) => { input.value = txt || '' })
+      it.getAsString((txt) => {
+        input.value = txt || ''
+      })
       break
     }
   }
@@ -195,7 +217,7 @@ onMounted(async () => {
     showOutput.value = true
     handleInputChange(input.value)
   }
-  
+
   // 内容加载完成，隐藏骨架屏
   isLoading.value = false
 })
@@ -211,32 +233,49 @@ onBeforeUnmount(() => {
 function handleInputChange(v: string) {
   const trimmed = v.trim()
   pushHistory(v)
-  if (!showOutput.value && trimmed.length > 0) { showOutput.value = true; leftRatio.value = 0.2 }
-  else if (showOutput.value && trimmed.length === 0) { showOutput.value = false }
+  if (!showOutput.value && trimmed.length > 0) {
+    showOutput.value = true
+    leftRatio.value = 0.2
+  } else if (showOutput.value && trimmed.length === 0) {
+    showOutput.value = false
+  }
   if (timeoutId) clearTimeout(timeoutId as any)
   timeoutId = window.setTimeout(() => {
-    if (!trimmed) { output.value = ''; error.value = ''; return }
-    
+    if (!trimmed) {
+      output.value = ''
+      error.value = ''
+      return
+    }
+
     // 检查是否为有效的XML
     let isXml = false
     try {
       const doc = new DOMParser().parseFromString(trimmed, 'application/xml')
       const err = doc.getElementsByTagName('parsererror')
       isXml = err.length === 0
-    } catch { isXml = false }
-    
+    } catch {
+      isXml = false
+    }
+
     if (isXml) {
       // 如果是有效的XML，使用formatXml格式化
       const r = formatXml(v, { indent: 2 })
-      if (r.ok) { output.value = r.formatted as string; error.value = '' }
-      else { output.value = ''; error.value = r.error as string }
+      if (r.ok) {
+        output.value = r.formatted as string
+        error.value = ''
+      } else {
+        output.value = ''
+        error.value = r.error as string
+      }
     } else {
       // 如果不是有效的XML，尝试使用jsonToXml转换
       const r = jsonToXml(v, { indent: 2 })
-      if (r.ok) { output.value = r.formatted as string; error.value = '' }
-      else {
+      if (r.ok) {
+        output.value = r.formatted as string
+        error.value = ''
+      } else {
         // 如果jsonToXml也失败，显示更合适的错误信息
-        output.value = '' 
+        output.value = ''
         // 检查输入是否看起来像XML但格式错误
         const looksLikeXml = /^\s*<([A-Za-z_][\w\-\.:]*)[\s\S]*>\s*$/.test(trimmed)
         error.value = looksLikeXml ? t('xml.parseXmlError') : t('xml.parseJsonOrXmlError')
@@ -254,7 +293,7 @@ const inputLang = computed(() => {
   try {
     const doc = new DOMParser().parseFromString(s, 'application/xml')
     const err = doc.getElementsByTagName('parsererror')
-    return (!err || err.length === 0) ? 'xml' : 'json'
+    return !err || err.length === 0 ? 'xml' : 'json'
   } catch {
     return 'json'
   }
@@ -286,7 +325,7 @@ function undo() {
     <template v-else>
       <PageHeader :title="t('xml.title')" @back="goBack">
         <template #actions>
-          <ConversionButton 
+          <ConversionButton
             current-tool="xml"
             :conversions="[
               {
@@ -294,93 +333,114 @@ function undo() {
                 label: 'To Json',
                 path: '/2json',
                 icon: '{}',
-                color: '#3b82f6'
+                color: '#3b82f6',
               },
               {
                 name: 'diff',
                 label: 'To Diff',
                 path: '/2diff',
                 icon: '≠',
-                color: '#f97316'
+                color: '#f97316',
               },
               {
                 name: 'escape',
                 label: 'To Escape',
                 path: '/2escape',
                 icon: '\\',
-                color: '#10b981'
-              }
+                color: '#10b981',
+              },
             ]"
-            @conversion="(conversion) => {
-              // 保存当前状态
-              pushToolState({
-                path: '/2xml',
-                input: input,
-                output: output,
-                showOutput: showOutput,
-                leftRatio: leftRatio
-              })
-              // 使用toolState传递值，而不是URL query参数
-              setNextToolInput(output)
-              // 跳转到目标工具页面
-              router.push({
-                path: conversion.path
-              })
-            }"
+            @conversion="
+              (conversion) => {
+                // 保存当前状态
+                pushToolState({
+                  path: '/2xml',
+                  input: input,
+                  output: output,
+                  showOutput: showOutput,
+                  leftRatio: leftRatio,
+                })
+                // 使用toolState传递值，而不是URL query参数
+                setNextToolInput(output)
+                // 跳转到目标工具页面
+                router.push({
+                  path: conversion.path,
+                })
+              }
+            "
           />
         </template>
       </PageHeader>
-        <div ref="splitRef" class="flex gap-0">
-          <!-- 输入区域 -->
-          <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
-            <div class="toolbar">
-              <span>{{ t('common.input') }}</span>
-              <div class="flex items-center gap-2">
-                <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
-                  <RiArrowGoBackLine size="18px" />
-                </ActionButton>
-              </div>
-            </div>
-            <div class="h-[60vh]">
-              <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
-                <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%" width="100%" />
-              </div>
+      <div ref="splitRef" class="flex gap-0">
+        <!-- 输入区域 -->
+        <div class="card" :style="{ width: showOutput ? leftWidth : '100%' }">
+          <div class="toolbar">
+            <span>{{ t('common.input') }}</span>
+            <div class="flex items-center gap-2">
+              <ActionButton variant="ghost" title="撤回" :disabled="!canUndo" @click="undo">
+                <RiArrowGoBackLine size="18px" />
+              </ActionButton>
             </div>
           </div>
+          <div class="h-[60vh]">
+            <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
+              <CodeEditor
+                v-model:value="input"
+                :language="inputLang"
+                theme="vs"
+                :options="options"
+                height="100%"
+                width="100%"
+              />
+            </div>
+          </div>
+        </div>
 
-          <!-- 分割线 -->
-          <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
+        <!-- 分割线 -->
+        <div
+          v-show="showOutput"
+          class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize"
+          @mousedown="beginDrag"
+          @touchstart="beginDrag"
+        ></div>
 
-          <!-- 输出区域 -->
-          <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
-            <div class="toolbar">
+        <!-- 输出区域 -->
+        <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
+          <div class="toolbar">
             <span>{{ t('xml.output') }}</span>
             <div class="relative">
               <!-- 复制按钮 -->
-              <ActionButton 
-                v-if="!copied" 
-                variant="ghost" 
-                title="复制" 
+              <ActionButton
+                v-if="!copied"
+                variant="ghost"
+                title="复制"
                 @click="copyOutput"
                 class="transition-all duration-300"
               >
                 <RiClipboardLine size="18px" />
               </ActionButton>
               <!-- 已复制文字 -->
-              <span 
-                v-else 
+              <span
+                v-else
                 class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
               >
                 {{ t('common.copied') }}
               </span>
             </div>
           </div>
-            <div class="h-[60vh]">
-              <CodeEditor v-model:value="output" language="xml" theme="vs" :options="outOptions" height="100%" width="100%" />
-            </div>
-            <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
+          <div class="h-[60vh]">
+            <CodeEditor
+              v-model:value="output"
+              language="xml"
+              theme="vs"
+              :options="outOptions"
+              height="100%"
+              width="100%"
+            />
           </div>
+          <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
         </div>
+      </div>
     </template>
   </PageContainer>
 </template>

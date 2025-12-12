@@ -150,7 +150,12 @@ export function jsonToXml(input: string, opts: FormatOptions = {}): FormatResult
 
 function xmlEsc(v: any): string {
   const s = String(v ?? '')
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
 }
 
 function toXml(tag: string, v: any): string {
@@ -159,8 +164,14 @@ function toXml(tag: string, v: any): string {
   if (v && typeof v === 'object') {
     const attrs = v['@attributes'] && typeof v['@attributes'] === 'object' ? v['@attributes'] : null
     const keys = Object.keys(v).filter((k) => k !== '@attributes' && k !== '#text')
-    const attrStr = attrs ? ' ' + Object.keys(attrs).map((k) => `${k}="${xmlEsc(attrs[k])}"`).join(' ') : ''
-    if (v['#text'] != null && keys.length === 0) return `<${tag}${attrStr}>${xmlEsc(v['#text'])}</${tag}>`
+    const attrStr = attrs
+      ? ' ' +
+        Object.keys(attrs)
+          .map((k) => `${k}="${xmlEsc(attrs[k])}"`)
+          .join(' ')
+      : ''
+    if (v['#text'] != null && keys.length === 0)
+      return `<${tag}${attrStr}>${xmlEsc(v['#text'])}</${tag}>`
     const children = keys.map((k) => toXml(k, v[k])).join('')
     return children ? `<${tag}${attrStr}>${children}</${tag}>` : `<${tag}${attrStr}/>`
   }
@@ -205,10 +216,10 @@ function renderXml(el: Element, indent: number, level: number): string {
       const t = (n.nodeValue || '').trim()
       if (t) text += t
     } else if (n.nodeType === 4) {
-      const c = (n.nodeValue || '')
+      const c = n.nodeValue || ''
       children.push(' '.repeat((level + 1) * indent) + `<![CDATA[${c}]]>`)
     } else if (n.nodeType === 8) {
-      const c = (n.nodeValue || '')
+      const c = n.nodeValue || ''
       children.push(' '.repeat((level + 1) * indent) + `<!--${c}-->`)
     }
   }

@@ -18,7 +18,9 @@
     <!-- 卡片容器 -->
     <div class="card">
       <!-- 工具栏骨架 -->
-      <div class="toolbar flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
+      <div
+        class="toolbar flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-t-lg"
+      >
         <div class="flex items-center gap-3">
           <div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
           <div class="space-y-1">
@@ -37,7 +39,7 @@
         <div class="p-4 space-y-3">
           <!-- 编辑器顶部状态栏占位 -->
           <div class="h-5 w-64 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-          
+
           <!-- 编辑器内容占位 -->
           <div class="space-y-2">
             <div class="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
@@ -61,7 +63,8 @@
 <style scoped>
 /* 骨架屏动画优化 */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

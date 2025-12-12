@@ -41,6 +41,11 @@
       "title": "To Escape",
       "description": "String escape, unescape",
       "feature": "Supports HTML, JSON, JavaScript"
+    },
+    "toCrypto": {
+      "title": "To Crypto",
+      "description": "Symmetric encryption, decryption",
+      "feature": "Supports AES-256-CBC algorithm"
     }
   },
   "diff": {
@@ -79,6 +84,22 @@
     "unescapeSingleQuotes": "single quotes",
     "escapeNewlines": "newlines",
     "unescapeNewlines": "newlines"
+  },
+  "crypto": {
+    "title": "To Crypto",
+    "output": "Encryption Result",
+    "decryptOutput": "Decryption Result",
+    "encrypt": "Encrypt",
+    "decrypt": "Decrypt",
+    "settings": "Encryption Settings",
+    "algorithm": "Algorithm",
+    "key": "Key",
+    "keyPlaceholder": "Please enter key (32 bytes)",
+    "generateKey": "Generate Key",
+    "iv": "Initial Vector (IV)",
+    "ivPlaceholder": "Please enter IV (16 bytes)",
+    "generateIv": "Generate IV",
+    "generateKeyAndIv": "Generate Random Key and IV"
   },
   "language": {
     "zh": "中文",

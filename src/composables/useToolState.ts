@@ -47,25 +47,30 @@ export function useToolState() {
    * @param currentState 当前工具的状态
    * @param output 当前工具的输出值
    */
-  function navigateToTool(targetPath: string, currentPath: string, currentState: any, output: string) {
+  function navigateToTool(
+    targetPath: string,
+    currentPath: string,
+    currentState: any,
+    output: string,
+  ) {
     // 保存当前状态
     pushToolState({
       path: currentPath,
-      ...currentState
+      ...currentState,
     })
-    
+
     // 使用toolState传递值，而不是URL query参数
     setNextToolInput(output)
-    
+
     // 跳转到目标工具页面
     router.push({
-      path: targetPath
+      path: targetPath,
     })
   }
 
   return {
     getInitialInput,
     goBack,
-    navigateToTool
+    navigateToTool,
   }
 }

@@ -20,7 +20,7 @@ export const tools: Tool[] = [
     color: 'blue',
     i18nKey: 'home.toJson.title',
     descriptionI18nKey: 'home.toJson.description',
-    featureI18nKey: 'home.toJson.feature'
+    featureI18nKey: 'home.toJson.feature',
   },
   {
     id: 'base64',
@@ -30,7 +30,7 @@ export const tools: Tool[] = [
     color: 'green',
     i18nKey: 'home.toBase64.title',
     descriptionI18nKey: 'home.toBase64.description',
-    featureI18nKey: 'home.toBase64.feature'
+    featureI18nKey: 'home.toBase64.feature',
   },
   {
     id: 'xml',
@@ -40,7 +40,7 @@ export const tools: Tool[] = [
     color: 'purple',
     i18nKey: 'home.toXml.title',
     descriptionI18nKey: 'home.toXml.description',
-    featureI18nKey: 'home.toXml.feature'
+    featureI18nKey: 'home.toXml.feature',
   },
   {
     id: 'diff',
@@ -50,7 +50,7 @@ export const tools: Tool[] = [
     color: 'orange',
     i18nKey: 'home.toDiff.title',
     descriptionI18nKey: 'home.toDiff.description',
-    featureI18nKey: 'home.toDiff.feature'
+    featureI18nKey: 'home.toDiff.feature',
   },
   {
     id: 'escape',
@@ -60,21 +60,31 @@ export const tools: Tool[] = [
     color: 'yellow',
     i18nKey: 'home.toEscape.title',
     descriptionI18nKey: 'home.toEscape.description',
-    featureI18nKey: 'home.toEscape.feature'
-  }
+    featureI18nKey: 'home.toEscape.feature',
+  },
+  {
+    id: 'crypto',
+    name: 'ToCrypto',
+    path: '/2crypto',
+    icon: '🔒',
+    color: 'red',
+    i18nKey: 'home.toCrypto.title',
+    descriptionI18nKey: 'home.toCrypto.description',
+    featureI18nKey: 'home.toCrypto.feature',
+  },
 ]
 
 // 根据ID获取工具
 export function getToolById(id: string): Tool | undefined {
-  return tools.find(tool => tool.id === id)
+  return tools.find((tool) => tool.id === id)
 }
 
 // 根据路径获取工具
 export function getToolByPath(path: string): Tool | undefined {
-  return tools.find(tool => tool.path === path)
+  return tools.find((tool) => tool.path === path)
 }
 
 // 根据名称获取工具
 export function getToolByName(name: string): Tool | undefined {
-  return tools.find(tool => tool.name === name)
+  return tools.find((tool) => tool.name === name)
 }

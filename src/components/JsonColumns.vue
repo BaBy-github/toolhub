@@ -2,8 +2,12 @@
 import { ref, watch } from 'vue'
 const props = defineProps<{ value: any }>()
 const stack = ref<{ label: string; items: { key: string; val: any }[] }[]>([])
-function isObj(v: any) { return v && typeof v === 'object' && !Array.isArray(v) }
-function isArr(v: any) { return Array.isArray(v) }
+function isObj(v: any) {
+  return v && typeof v === 'object' && !Array.isArray(v)
+}
+function isArr(v: any) {
+  return Array.isArray(v)
+}
 function toItems(v: any) {
   if (isObj(v)) return Object.keys(v).map((k) => ({ key: k, val: v[k] }))
   if (isArr(v)) return v.map((x, i) => ({ key: String(i), val: x }))
@@ -16,7 +20,11 @@ function reset() {
   stack.value = []
   push(props.value, 'root')
 }
-watch(() => props.value, () => reset(), { immediate: true })
+watch(
+  () => props.value,
+  () => reset(),
+  { immediate: true },
+)
 function select(idx: number, colIdx: number) {
   stack.value = stack.value.slice(0, colIdx + 1)
   const col = stack.value[colIdx]
@@ -34,7 +42,9 @@ function select(idx: number, colIdx: number) {
       <div class="toolbar">{{ col.label }}</div>
       <ul class="p-2">
         <li v-for="(it, idx) in col.items" :key="idx">
-          <button class="w-full text-left btn-ghost px-2 py-1" @click="select(idx, i)">{{ it.key }}</button>
+          <button class="w-full text-left btn-ghost px-2 py-1" @click="select(idx, i)">
+            {{ it.key }}
+          </button>
         </li>
       </ul>
     </div>

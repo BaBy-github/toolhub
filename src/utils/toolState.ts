@@ -63,7 +63,7 @@ export function initToolState(path: string, initialInput: string = ''): ToolStat
     input: initialInput,
     showOutput: false,
     leftRatio: 0.2,
-    viewMode: 'code'
+    viewMode: 'code',
   }
 }
 

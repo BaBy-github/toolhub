@@ -109,15 +109,15 @@ function onPaste(e: ClipboardEvent) {
     const it = items[i]
     if (!it) continue
     if (it.kind === 'file') {
-    const f = it.getAsFile()
-    if (f) {
-      fileInfo.value = { name: f.name || '剪贴板文件', size: f.size, type: f.type }
-      history.value = ['']
-      cursor.value = 0
-      toBase64(f)
-      break
+      const f = it.getAsFile()
+      if (f) {
+        fileInfo.value = { name: f.name || '剪贴板文件', size: f.size, type: f.type }
+        history.value = ['']
+        cursor.value = 0
+        toBase64(f)
+        break
+      }
     }
-  }
     if (it.kind === 'string' && it.type === 'text/plain') {
       it.getAsString((txt) => {
         inputText.value = txt || ''
@@ -140,7 +140,9 @@ async function copyOutput() {
   try {
     await navigator.clipboard.writeText(output.value)
     copied.value = true
-    window.setTimeout(() => { copied.value = false }, 1000)
+    window.setTimeout(() => {
+      copied.value = false
+    }, 1000)
   } catch {}
 }
 
@@ -156,7 +158,7 @@ function goBack() {
 onMounted(async () => {
   await nextTick()
   window.addEventListener('paste', onPaste as any)
-  
+
   // 内容加载完成，隐藏骨架屏
   isLoading.value = false
 })
@@ -224,7 +226,10 @@ watch(inputText, (v) => {
   const trimmed = v.trim()
   pushHistory(v)
   if (!trimmed) {
-    if (!fileInfo.value) { output.value = ''; showOutput.value = false }
+    if (!fileInfo.value) {
+      output.value = ''
+      showOutput.value = false
+    }
     return
   }
   error.value = ''
@@ -243,13 +248,29 @@ function formatBytes(n: number): string {
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
   let i = 0
   let v = n
-  while (v >= 1024 && i < units.length - 1) { v = v / 1024; i++ }
+  while (v >= 1024 && i < units.length - 1) {
+    v = v / 1024
+    i++
+  }
   const s = v >= 100 ? Math.round(v).toString() : v >= 10 ? v.toFixed(1) : v.toFixed(2)
   return s + ' ' + units[i]
 }
 
-const outOptions = { language: 'plaintext', theme: 'vs', readOnly: true, minimap: { enabled: false }, automaticLayout: true, wordWrap: 'on' }
-const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: false }, automaticLayout: true, wordWrap: 'on' }
+const outOptions = {
+  language: 'plaintext',
+  theme: 'vs',
+  readOnly: true,
+  minimap: { enabled: false },
+  automaticLayout: true,
+  wordWrap: 'on',
+}
+const inOptions = {
+  language: 'plaintext',
+  theme: 'vs',
+  minimap: { enabled: false },
+  automaticLayout: true,
+  wordWrap: 'on',
+}
 </script>
 
 <template>
@@ -266,12 +287,38 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
           <div class="toolbar">
             <div class="flex items-center gap-2">
               <span>{{ fileInfo ? t('base64.fileInfo') : t('common.input') }}</span>
-              <ActionButton variant="primary" size="sm" title="上传文件" @click="fileInput?.click()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <ActionButton
+                variant="primary"
+                size="sm"
+                title="上传文件"
+                @click="fileInput?.click()"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
               </ActionButton>
             </div>
             <div class="flex items-center gap-2">
-              <ActionButton variant="ghost" icon-only size="sm" title="撤回" :disabled="!canUndo" @click="undo">
+              <ActionButton
+                variant="ghost"
+                icon-only
+                size="sm"
+                title="撤回"
+                :disabled="!canUndo"
+                @click="undo"
+              >
                 <RiArrowGoBackLine size="16px" />
               </ActionButton>
             </div>
@@ -285,50 +332,82 @@ const inOptions = { language: 'plaintext', theme: 'vs', minimap: { enabled: fals
           </div>
           <div v-else class="h-[60vh]">
             <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full relative">
-              <CodeEditor v-model:value="inputText" language="plaintext" theme="vs" :options="inOptions" height="100%" width="100%" />
+              <CodeEditor
+                v-model:value="inputText"
+                language="plaintext"
+                theme="vs"
+                :options="inOptions"
+                height="100%"
+                width="100%"
+              />
               <!-- 隐藏的文件输入 -->
-              <input ref="fileInput" type="file" class="hidden" @change="(e) => handleFiles((e.target as HTMLInputElement).files)" />
+              <input
+                ref="fileInput"
+                type="file"
+                class="hidden"
+                @change="(e) => handleFiles((e.target as HTMLInputElement).files)"
+              />
             </div>
           </div>
         </div>
 
         <!-- 分割线 -->
-        <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag" @touchstart="beginDrag"></div>
+        <div
+          v-show="showOutput"
+          class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize"
+          @mousedown="beginDrag"
+          @touchstart="beginDrag"
+        ></div>
 
         <!-- 输出区域 -->
         <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
           <div class="toolbar">
-              <span>{{ t('base64.output') }}</span>
-              <div class="flex items-center gap-2">
-                <label class="inline-flex items-center gap-1 text-xs text-gray-600">
-                  <input type="checkbox" v-model="withPrefix" @change="() => { if (fileInfo) showOutput = true }" />
-                  {{ t('base64.prefix') }}
-                </label>
-                <div class="relative">
-                  <!-- 复制按钮 -->
-                  <ActionButton 
-                    v-if="!copied" 
-                    variant="ghost" 
-                    icon-only
-                    size="sm"
-                    title="复制" 
-                    @click="copyOutput"
-                    class="transition-all duration-300"
-                  >
-                    <RiClipboardLine size="16px" />
-                  </ActionButton>
-                  <!-- 已复制文字 -->
-                <span 
-                  v-else 
+            <span>{{ t('base64.output') }}</span>
+            <div class="flex items-center gap-2">
+              <label class="inline-flex items-center gap-1 text-xs text-gray-600">
+                <input
+                  type="checkbox"
+                  v-model="withPrefix"
+                  @change="
+                    () => {
+                      if (fileInfo) showOutput = true
+                    }
+                  "
+                />
+                {{ t('base64.prefix') }}
+              </label>
+              <div class="relative">
+                <!-- 复制按钮 -->
+                <ActionButton
+                  v-if="!copied"
+                  variant="ghost"
+                  icon-only
+                  size="sm"
+                  title="复制"
+                  @click="copyOutput"
+                  class="transition-all duration-300"
+                >
+                  <RiClipboardLine size="16px" />
+                </ActionButton>
+                <!-- 已复制文字 -->
+                <span
+                  v-else
                   class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
                 >
                   {{ t('common.copied') }}
                 </span>
-                </div>
               </div>
             </div>
+          </div>
           <div class="h-[60vh]">
-            <CodeEditor v-model:value="output" language="plaintext" theme="vs" :options="outOptions" height="100%" width="100%" />
+            <CodeEditor
+              v-model:value="output"
+              language="plaintext"
+              theme="vs"
+              :options="outOptions"
+              height="100%"
+              width="100%"
+            />
           </div>
           <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
         </div>

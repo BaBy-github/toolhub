@@ -41,6 +41,11 @@
       "title": "To Escape",
       "description": "字符串转义、反转义",
       "feature": "支持HTML、JSON、JavaScript"
+    },
+    "toCrypto": {
+      "title": "To Crypto",
+      "description": "对称加密、解密",
+      "feature": "支持AES-256-CBC算法"
     }
   },
   "diff": {
@@ -79,6 +84,22 @@
     "unescapeSingleQuotes": "单引号",
     "escapeNewlines": "换行符",
     "unescapeNewlines": "换行符"
+  },
+  "crypto": {
+    "title": "To Crypto",
+    "output": "加密结果",
+    "decryptOutput": "解密结果",
+    "encrypt": "加密",
+    "decrypt": "解密",
+    "settings": "加密设置",
+    "algorithm": "算法",
+    "key": "密钥",
+    "keyPlaceholder": "请输入密钥（32字节）",
+    "generateKey": "生成密钥",
+    "iv": "初始向量（IV）",
+    "ivPlaceholder": "请输入初始向量（16字节）",
+    "generateIv": "生成IV",
+    "generateKeyAndIv": "生成随机密钥和IV"
   },
   "language": {
     "zh": "中文",
