@@ -99,7 +99,10 @@
     "iv": "初始向量（IV）",
     "ivPlaceholder": "请输入初始向量（16字节）",
     "generateIv": "生成IV",
-    "generateKeyAndIv": "生成随机密钥和IV"
+    "generateKeyAndIv": "生成随机密钥和IV",
+    "algorithms": {
+      "aes-256-cbc": "AES-256-CBC"
+    }
   },
   "language": {
     "zh": "中文",

@@ -330,23 +330,25 @@ const inOptions = {
               <div>类型：{{ fileInfo.type || '未知' }}</div>
             </div>
           </div>
-          <div v-else class="h-[60vh]">
-            <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full relative">
-              <CodeEditor
-                v-model:value="inputText"
-                language="plaintext"
-                theme="vs"
-                :options="inOptions"
-                height="100%"
-                width="100%"
-              />
-              <!-- 隐藏的文件输入 -->
-              <input
-                ref="fileInput"
-                type="file"
-                class="hidden"
-                @change="(e) => handleFiles((e.target as HTMLInputElement).files)"
-              />
+          <div v-else class="relative">
+            <div class="h-[60vh]">
+              <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full relative">
+                <CodeEditor
+                  v-model:value="inputText"
+                  language="plaintext"
+                  theme="vs"
+                  :options="inOptions"
+                  height="100%"
+                  width="100%"
+                />
+                <!-- 隐藏的文件输入 -->
+                <input
+                  ref="fileInput"
+                  type="file"
+                  class="hidden"
+                  @change="(e) => handleFiles((e.target as HTMLInputElement).files)"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -399,15 +401,17 @@ const inOptions = {
               </div>
             </div>
           </div>
-          <div class="h-[60vh]">
-            <CodeEditor
-              v-model:value="output"
-              language="plaintext"
-              theme="vs"
-              :options="outOptions"
-              height="100%"
-              width="100%"
-            />
+          <div class="relative">
+            <div class="h-[60vh]">
+              <CodeEditor
+                v-model:value="output"
+                language="plaintext"
+                theme="vs"
+                :options="outOptions"
+                height="100%"
+                width="100%"
+              />
+            </div>
           </div>
           <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
         </div>

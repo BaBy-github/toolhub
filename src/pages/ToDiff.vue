@@ -217,14 +217,16 @@ function goBack() {
       </div>
 
       <!-- Diff编辑器 -->
-      <div
-        ref="containerRef"
-        class="h-[60vh] overflow-hidden"
-        style="width: 100%; box-sizing: border-box"
-      >
-        <template v-if="isLoading">
-          <SkeletonLoader />
-        </template>
+      <div class="relative">
+        <div
+          ref="containerRef"
+          class="h-[60vh] overflow-hidden"
+          style="width: 100%; box-sizing: border-box"
+        >
+          <template v-if="isLoading">
+            <SkeletonLoader />
+          </template>
+        </div>
       </div>
     </div>
   </PageContainer>

@@ -382,16 +382,18 @@ function undo() {
               </ActionButton>
             </div>
           </div>
-          <div class="h-[60vh]">
-            <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
-              <CodeEditor
-                v-model:value="input"
-                :language="inputLang"
-                theme="vs"
-                :options="options"
-                height="100%"
-                width="100%"
-              />
+          <div class="relative">
+            <div class="h-[60vh]">
+              <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
+                <CodeEditor
+                  v-model:value="input"
+                  :language="inputLang"
+                  theme="vs"
+                  :options="options"
+                  height="100%"
+                  width="100%"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -428,15 +430,17 @@ function undo() {
               </span>
             </div>
           </div>
-          <div class="h-[60vh]">
-            <CodeEditor
-              v-model:value="output"
-              language="xml"
-              theme="vs"
-              :options="outOptions"
-              height="100%"
-              width="100%"
-            />
+          <div class="relative">
+            <div class="h-[60vh]">
+              <CodeEditor
+                v-model:value="output"
+                language="xml"
+                theme="vs"
+                :options="outOptions"
+                height="100%"
+                width="100%"
+              />
+            </div>
           </div>
           <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
         </div>

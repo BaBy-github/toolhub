@@ -15,6 +15,7 @@ import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const input = ref('')
 const output = ref('')
+const error = ref('')
 const showOutput = ref(false)
 const leftRatio = ref(0.2)
 const splitRef = ref<HTMLElement | null>(null)
@@ -140,17 +141,32 @@ async function processInput() {
   const trimmed = input.value.trim()
   if (!trimmed) {
     output.value = ''
+    error.value = ''
     return
   }
 
+  // 记录当前模式，防止异步操作期间模式切换导致的竞态问题
+  const currentMode = isEncryptMode.value
+
   try {
-    if (isEncryptMode.value) {
-      output.value = await encryptString(trimmed, cryptoSettings.value)
+    if (currentMode) {
+      const result = await encryptString(trimmed, cryptoSettings.value)
+      // 只有当前模式仍然是加密模式时，才更新输出
+      if (isEncryptMode.value === currentMode) {
+        output.value = result
+        error.value = ''
+      }
     } else {
-      output.value = await decryptString(trimmed, cryptoSettings.value)
+      const result = await decryptString(trimmed, cryptoSettings.value)
+      // 只有当前模式仍然是解密模式时，才更新输出
+      if (isEncryptMode.value === currentMode) {
+        output.value = result
+        error.value = ''
+      }
     }
   } catch (e) {
-    output.value = `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
+    error.value = e instanceof Error ? e.message : 'Unknown error'
+    output.value = ''
   }
 }
 
@@ -161,6 +177,7 @@ watch(input, (newVal, oldVal) => {
     leftRatio.value = 0.2
   } else if (showOutput.value && trimmed.length === 0) {
     showOutput.value = false
+    error.value = ''
   }
 
   // 检测粘贴操作（输入长度突然增加很多）
@@ -189,6 +206,9 @@ watch(
 
 // 监听模式变化，重新处理输入值
 watch(isEncryptMode, () => {
+  // 先清空输出和错误，然后再重新计算
+  output.value = ''
+  error.value = ''
   const trimmed = input.value.trim()
   if (trimmed) {
     processInput()
@@ -223,7 +243,7 @@ async function copyOutput() {
     window.setTimeout(() => {
       copied.value = false
     }, 1000)
-  } catch {}
+  } catch { }
 }
 function goBack() {
   const prevState = popToolState()
@@ -250,52 +270,39 @@ function goBack() {
             <span>{{ t('common.input') }}</span>
             <div class="flex items-center">
               <!-- 加密/解密模式切换按钮 -->
-              <button
-                class="px-3 py-1 text-sm rounded-l-md transition-colors cursor-pointer"
-                :class="
-                  isEncryptMode
-                    ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                    : 'bg-green-100 text-green-800 hover:bg-green-200'
-                "
-                @click="isEncryptMode = !isEncryptMode"
-              >
+              <button class="px-3 py-1 text-sm rounded-l-md transition-colors cursor-pointer" :class="isEncryptMode
+                  ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                  : 'bg-green-100 text-green-800 hover:bg-green-200'
+                " @click="isEncryptMode = !isEncryptMode">
                 {{ isEncryptMode ? t('crypto.encrypt') : t('crypto.decrypt') }}
               </button>
               <!-- 加密设置下拉菜单 -->
               <div class="relative" ref="settingsContainer">
                 <button
                   class="p-2 rounded-r-md hover:bg-gray-100 transition-colors cursor-pointer border-l border-gray-200"
-                  :title="t('crypto.settings')"
-                  @click="showCryptoSettings = !showCryptoSettings"
-                  @mouseenter="handleSettingsMouseEnter"
-                >
+                  :title="t('crypto.settings')" @click="showCryptoSettings = !showCryptoSettings"
+                  @mouseenter="handleSettingsMouseEnter">
                   <RiSettings3Line size="18px" class="text-gray-600" />
                 </button>
 
                 <!-- 加密设置选项框 -->
-                <div
-                  v-show="showCryptoSettings"
+                <div v-show="showCryptoSettings"
                   class="absolute right-0 mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-1000 transition-all duration-200 ease-in-out"
                   :class="{
                     'opacity-100 translate-y-0 scale-100': showCryptoSettings,
                     'opacity-0 translate-y-[-5px] scale-95 pointer-events-none':
                       !showCryptoSettings,
-                  }"
-                  @mouseenter="handleSettingsMouseEnter"
-                  @mouseleave="handleSettingsMouseLeave"
-                >
+                  }" @mouseenter="handleSettingsMouseEnter" @mouseleave="handleSettingsMouseLeave">
                   <div class="p-3">
                     <div class="space-y-3">
                       <!-- 算法选择 -->
                       <div class="space-y-1">
                         <label class="block text-sm font-medium text-gray-700">{{
                           t('crypto.algorithm')
-                        }}</label>
-                        <select
-                          v-model="cryptoSettings.algorithm"
-                          class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="aes-256-cbc">AES-256-CBC</option>
+                          }}</label>
+                        <select v-model="cryptoSettings.algorithm"
+                          class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                          <option value="aes-256-cbc">{{ t('crypto.algorithms.aes-256-cbc') }}</option>
                         </select>
                       </div>
 
@@ -304,21 +311,15 @@ function goBack() {
                         <div class="flex items-center justify-between">
                           <label class="block text-sm font-medium text-gray-700">{{
                             t('crypto.key')
-                          }}</label>
-                          <button
-                            @click="generateKey"
+                            }}</label>
+                          <button @click="generateKey"
                             class="text-xs text-blue-600 hover:text-blue-800 transition-colors"
-                            :title="t('crypto.generateKey')"
-                          >
+                            :title="t('crypto.generateKey')">
                             <RiRefreshLine size="16px" />
                           </button>
                         </div>
-                        <input
-                          v-model="cryptoSettings.key"
-                          type="text"
-                          placeholder="{{ t('crypto.keyPlaceholder') }}"
-                          class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                        <input v-model="cryptoSettings.key" type="text" :placeholder="t('crypto.keyPlaceholder')"
+                          class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                       </div>
 
                       <!-- IV设置 -->
@@ -326,28 +327,20 @@ function goBack() {
                         <div class="flex items-center justify-between">
                           <label class="block text-sm font-medium text-gray-700">{{
                             t('crypto.iv')
-                          }}</label>
-                          <button
-                            @click="generateIv"
+                            }}</label>
+                          <button @click="generateIv"
                             class="text-xs text-blue-600 hover:text-blue-800 transition-colors"
-                            :title="t('crypto.generateIv')"
-                          >
+                            :title="t('crypto.generateIv')">
                             <RiRefreshLine size="16px" />
                           </button>
                         </div>
-                        <input
-                          v-model="cryptoSettings.iv"
-                          type="text"
-                          placeholder="{{ t('crypto.ivPlaceholder') }}"
-                          class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                        <input v-model="cryptoSettings.iv" type="text" :placeholder="t('crypto.ivPlaceholder')"
+                          class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                       </div>
 
                       <!-- 生成随机密钥和IV按钮 -->
-                      <button
-                        @click="generateKeyAndIv"
-                        class="w-full px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors"
-                      >
+                      <button @click="generateKeyAndIv"
+                        class="w-full px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors">
                         {{ t('crypto.generateKeyAndIv') }}
                       </button>
                     </div>
@@ -358,24 +351,14 @@ function goBack() {
           </div>
 
           <div class="h-[60vh]">
-            <CodeEditor
-              v-model:value="input"
-              :language="'text'"
-              theme="vs"
-              :options="options"
-              height="100%"
-              width="100%"
-            />
+            <CodeEditor v-model:value="input" :language="'text'" theme="vs" :options="options" height="100%"
+              width="100%" />
           </div>
         </div>
 
         <!-- 分割线 -->
-        <div
-          v-show="showOutput"
-          class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize"
-          @mousedown="beginDrag"
-          @touchstart="beginDrag"
-        ></div>
+        <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag"
+          @touchstart="beginDrag"></div>
 
         <!-- 输出区域 -->
         <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
@@ -383,34 +366,22 @@ function goBack() {
             <span>{{ isEncryptMode ? t('crypto.output') : t('crypto.decryptOutput') }}</span>
             <div class="relative">
               <!-- 复制按钮 -->
-              <ActionButton
-                v-if="!copied"
-                variant="ghost"
-                title="复制"
-                @click="copyOutput"
-                class="transition-all duration-300"
-              >
+              <ActionButton v-if="!copied" variant="ghost" title="复制" @click="copyOutput"
+                class="transition-all duration-300">
                 <RiClipboardLine size="18px" />
               </ActionButton>
               <!-- 已复制文字 -->
-              <span
-                v-else
-                class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
-              >
+              <span v-else
+                class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300">
                 {{ t('common.copied') }}
               </span>
             </div>
           </div>
           <div class="h-[60vh]">
-            <CodeEditor
-              v-model:value="output"
-              :language="'text'"
-              theme="vs"
-              :options="outOptions"
-              height="100%"
-              width="100%"
-            />
+            <CodeEditor v-model:value="output" :language="'text'" theme="vs" :options="outOptions" height="100%"
+              width="100%" />
           </div>
+          <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
         </div>
       </div>
     </template>

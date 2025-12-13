@@ -17,12 +17,34 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 // 将Base64字符串转换为ArrayBuffer
 function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  const binaryString = atob(base64)
-  const bytes = new Uint8Array(binaryString.length)
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i)
+  // 清理和标准化Base64字符串
+  let normalizedBase64 = base64
+    .trim() // 去除首尾空白
+    .replace(/\s+/g, '') // 去除所有空白字符
+    .replace(/-/g, '+') // 替换URL安全的连字符
+    .replace(/_/g, '/') // 替换URL安全的下划线
+  
+  // 确保正确的填充长度
+  const padding = 4 - (normalizedBase64.length % 4)
+  if (padding !== 4) {
+    normalizedBase64 += '='.repeat(padding)
   }
-  return bytes.buffer
+  
+  // 验证Base64格式
+  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(normalizedBase64)) {
+    throw new Error('Invalid Base64 string format')
+  }
+  
+  try {
+    const binaryString = atob(normalizedBase64)
+    const bytes = new Uint8Array(binaryString.length)
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
+    }
+    return bytes.buffer
+  } catch (error) {
+    throw new Error(`Failed to decode Base64 string: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
 }
 
 // 将十六进制字符串转换为ArrayBuffer

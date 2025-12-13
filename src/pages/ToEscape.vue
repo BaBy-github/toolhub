@@ -332,15 +332,17 @@ function goBack() {
             </div>
           </div>
 
-          <div class="h-[60vh]">
-            <CodeEditor
-              v-model:value="input"
-              :language="'text'"
-              theme="vs"
-              :options="options"
-              height="100%"
-              width="100%"
-            />
+          <div class="relative">
+            <div class="h-[60vh]">
+              <CodeEditor
+                v-model:value="input"
+                :language="'text'"
+                theme="vs"
+                :options="options"
+                height="100%"
+                width="100%"
+              />
+            </div>
           </div>
         </div>
 
@@ -376,15 +378,17 @@ function goBack() {
               </span>
             </div>
           </div>
-          <div class="h-[60vh]">
-            <CodeEditor
-              v-model:value="output"
-              :language="'text'"
-              theme="vs"
-              :options="outOptions"
-              height="100%"
-              width="100%"
-            />
+          <div class="relative">
+            <div class="h-[60vh]">
+              <CodeEditor
+                v-model:value="output"
+                :language="'text'"
+                theme="vs"
+                :options="outOptions"
+                height="100%"
+                width="100%"
+              />
+            </div>
           </div>
         </div>
       </div>

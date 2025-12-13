@@ -99,7 +99,10 @@
     "iv": "Initial Vector (IV)",
     "ivPlaceholder": "Please enter IV (16 bytes)",
     "generateIv": "Generate IV",
-    "generateKeyAndIv": "Generate Random Key and IV"
+    "generateKeyAndIv": "Generate Random Key and IV",
+    "algorithms": {
+      "aes-256-cbc": "AES-256-CBC"
+    }
   },
   "language": {
     "zh": "中文",
