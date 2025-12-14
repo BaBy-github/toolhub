@@ -19,33 +19,33 @@
     "learnMore": "Learn More",
     "toJson": {
       "title": "To Json",
-      "description": "Json string, escaped Json string",
-      "feature": "Supports three views"
+      "description": "Convert content to JSON format",
+      "feature": "Supports JSON strings, escaped JSON strings, XML"
     },
     "toBase64": {
       "title": "To Base64",
-      "description": "File, string",
-      "feature": "Can parse file mime"
+      "description": "Convert files or strings to Base64 encoding",
+      "feature": "Supports files, text strings"
     },
     "toXml": {
       "title": "To Xml",
-      "description": "XML formatting, JSON to XML",
-      "feature": "Supports drag and drop"
+      "description": "Convert content to XML format",
+      "feature": "Supports XML strings, JSON strings, files"
     },
     "toDiff": {
       "title": "To Diff",
-      "description": "String comparison, difference highlighting",
-      "feature": "Supports real-time comparison"
+      "description": "Compare differences between two strings",
+      "feature": "Supports text strings, code snippets"
     },
     "toEscape": {
       "title": "To Escape",
-      "description": "String escape, unescape",
-      "feature": "Supports HTML, JSON, JavaScript"
+      "description": "Escape or unescape strings",
+      "feature": "Supports HTML, JSON, JavaScript strings"
     },
     "toCrypto": {
       "title": "To Crypto",
-      "description": "Symmetric encryption, decryption",
-      "feature": "Supports AES-256-CBC algorithm"
+      "description": "Symmetric encryption and decryption for strings",
+      "feature": "Supports text strings, encrypted ciphertext"
     }
   },
   "diff": {

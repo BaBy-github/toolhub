@@ -19,33 +19,33 @@
     "learnMore": "了解更多",
     "toJson": {
       "title": "To Json",
-      "description": "Json字符串、带转义的Json字符串",
-      "feature": "支持三种视图"
+      "description": "将内容转换为JSON格式",
+      "feature": "可处理Json字符串、带转义的Json字符串、XML"
     },
     "toBase64": {
       "title": "To Base64",
-      "description": "文件、字符串",
-      "feature": "可解析文件mime"
+      "description": "将文件或字符串转换为Base64编码",
+      "feature": "可处理文件、文本字符串"
     },
     "toXml": {
       "title": "To Xml",
-      "description": "XML格式化、JSON转XML",
-      "feature": "支持拖拽与粘贴"
+      "description": "将内容转换为XML格式",
+      "feature": "可处理XML字符串、JSON字符串、文件"
     },
     "toDiff": {
       "title": "To Diff",
-      "description": "字符串对比、差异高亮",
-      "feature": "支持实时对比"
+      "description": "对比两个字符串的差异",
+      "feature": "可处理文本字符串、代码片段"
     },
     "toEscape": {
       "title": "To Escape",
-      "description": "字符串转义、反转义",
-      "feature": "支持HTML、JSON、JavaScript"
+      "description": "对字符串进行转义或反转义处理",
+      "feature": "可处理HTML、JSON、JavaScript字符串"
     },
     "toCrypto": {
       "title": "To Crypto",
-      "description": "对称加密、解密",
-      "feature": "支持AES-256-CBC算法"
+      "description": "对字符串进行对称加密或解密",
+      "feature": "可处理文本字符串、加密密文"
     }
   },
   "diff": {
