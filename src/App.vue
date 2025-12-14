@@ -205,7 +205,7 @@ onMounted(() => {
     </header>
 
     <!-- Main Content -->
-    <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-grow mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 min-h-[calc(100vh-64px-120px)]">
       <router-view />
     </main>
 

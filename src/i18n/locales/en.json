@@ -20,32 +20,32 @@
     "toJson": {
       "title": "To Json",
       "description": "Convert content to JSON format",
-      "feature": "Supports JSON strings, escaped JSON strings, XML"
+      "feature": "From JSON strings, escaped JSON strings, XML"
     },
     "toBase64": {
       "title": "To Base64",
       "description": "Convert files or strings to Base64 encoding",
-      "feature": "Supports files, text strings"
+      "feature": "From files, text strings"
     },
     "toXml": {
       "title": "To Xml",
       "description": "Convert content to XML format",
-      "feature": "Supports XML strings, JSON strings, files"
+      "feature": "From XML strings, JSON strings, files"
     },
     "toDiff": {
       "title": "To Diff",
       "description": "Compare differences between two strings",
-      "feature": "Supports text strings, code snippets"
+      "feature": "From text strings, code snippets"
     },
     "toEscape": {
       "title": "To Escape",
       "description": "Escape or unescape strings",
-      "feature": "Supports HTML, JSON, JavaScript strings"
+      "feature": "From HTML, JSON, JavaScript strings"
     },
     "toCrypto": {
       "title": "To Crypto",
       "description": "Symmetric encryption and decryption for strings",
-      "feature": "Supports text strings, encrypted ciphertext"
+      "feature": "From text strings, encrypted ciphertext"
     }
   },
   "diff": {

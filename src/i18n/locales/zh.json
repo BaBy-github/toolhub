@@ -20,32 +20,32 @@
     "toJson": {
       "title": "To Json",
       "description": "将内容转换为JSON格式",
-      "feature": "可处理Json字符串、带转义的Json字符串、XML"
+      "feature": "从Json字符串、带转义的Json字符串、XML"
     },
     "toBase64": {
       "title": "To Base64",
       "description": "将文件或字符串转换为Base64编码",
-      "feature": "可处理文件、文本字符串"
+      "feature": "从文件、文本字符串"
     },
     "toXml": {
       "title": "To Xml",
       "description": "将内容转换为XML格式",
-      "feature": "可处理XML字符串、JSON字符串、文件"
+      "feature": "从XML字符串、JSON字符串、文件"
     },
     "toDiff": {
       "title": "To Diff",
       "description": "对比两个字符串的差异",
-      "feature": "可处理文本字符串、代码片段"
+      "feature": "文本字符串、代码片段"
     },
     "toEscape": {
       "title": "To Escape",
       "description": "对字符串进行转义或反转义处理",
-      "feature": "可处理HTML、JSON、JavaScript字符串"
+      "feature": "从HTML、JSON、JavaScript字符串"
     },
     "toCrypto": {
       "title": "To Crypto",
       "description": "对字符串进行对称加密或解密",
-      "feature": "可处理文本字符串、加密密文"
+      "feature": "从文本字符串、加密密文"
     }
   },
   "diff": {

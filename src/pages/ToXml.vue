@@ -45,7 +45,7 @@ if (nextInput) {
   handleInputChange(input.value)
 }
 
-const options = { theme: 'vs', minimap: { enabled: false }, automaticLayout: true }
+const options = { theme: 'vs', minimap: { enabled: false }, automaticLayout: true, placeholder: t('home.toXml.feature') }
 const outOptions = {
   language: 'xml',
   theme: 'vs',
@@ -108,7 +108,7 @@ async function copyOutput() {
     window.setTimeout(() => {
       copied.value = false
     }, 1000)
-  } catch {}
+  } catch { }
 }
 
 function goBack() {
@@ -325,32 +325,29 @@ function undo() {
     <template v-else>
       <PageHeader :title="t('xml.title')" @back="goBack">
         <template #actions>
-          <ConversionButton
-            current-tool="xml"
-            :conversions="[
-              {
-                name: 'json',
-                label: 'To Json',
-                path: '/2json',
-                icon: '{}',
-                color: '#3b82f6',
-              },
-              {
-                name: 'diff',
-                label: 'To Diff',
-                path: '/2diff',
-                icon: '≠',
-                color: '#f97316',
-              },
-              {
-                name: 'escape',
-                label: 'To Escape',
-                path: '/2escape',
-                icon: '\\',
-                color: '#10b981',
-              },
-            ]"
-            @conversion="
+          <ConversionButton current-tool="xml" :conversions="[
+            {
+              name: 'json',
+              label: 'To Json',
+              path: '/2json',
+              icon: '{}',
+              color: '#3b82f6',
+            },
+            {
+              name: 'diff',
+              label: 'To Diff',
+              path: '/2diff',
+              icon: '≠',
+              color: '#f97316',
+            },
+            {
+              name: 'escape',
+              label: 'To Escape',
+              path: '/2escape',
+              icon: '\\',
+              color: '#10b981',
+            },
+          ]" @conversion="
               (conversion) => {
                 // 保存当前状态
                 pushToolState({
@@ -367,8 +364,7 @@ function undo() {
                   path: conversion.path,
                 })
               }
-            "
-          />
+            " />
         </template>
       </PageHeader>
       <div ref="splitRef" class="flex gap-0">
@@ -385,14 +381,8 @@ function undo() {
           <div class="relative">
             <div class="h-[60vh]">
               <div ref="dropRef" @drop="onDrop" @dragover="onDragover" class="h-full">
-                <CodeEditor
-                  v-model:value="input"
-                  :language="inputLang"
-                  theme="vs"
-                  :options="options"
-                  height="100%"
-                  width="100%"
-                />
+                <CodeEditor v-model:value="input" :language="inputLang" theme="vs" :options="options" height="100%"
+                  width="100%" />
               </div>
             </div>
           </div>
@@ -400,12 +390,8 @@ function undo() {
         </div>
 
         <!-- 分割线 -->
-        <div
-          v-show="showOutput"
-          class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize"
-          @mousedown="beginDrag"
-          @touchstart="beginDrag"
-        ></div>
+        <div v-show="showOutput" class="w-[6px] bg-gray-200 hover:bg-gray-300 cursor-col-resize" @mousedown="beginDrag"
+          @touchstart="beginDrag"></div>
 
         <!-- 输出区域 -->
         <div v-show="showOutput" class="relative card" :style="{ width: rightWidth }">
@@ -413,34 +399,21 @@ function undo() {
             <span>{{ t('xml.output') }}</span>
             <div class="relative">
               <!-- 复制按钮 -->
-              <ActionButton
-                v-if="!copied"
-                variant="ghost"
-                title="复制"
-                @click="copyOutput"
-                class="transition-all duration-300"
-              >
+              <ActionButton v-if="!copied" variant="ghost" title="复制" @click="copyOutput"
+                class="transition-all duration-300">
                 <RiClipboardLine size="18px" />
               </ActionButton>
               <!-- 已复制文字 -->
-              <span
-                v-else
-                class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300"
-              >
+              <span v-else
+                class="inline-flex items-center justify-center h-9 w-16 bg-green-100 text-green-800 text-xs font-medium rounded-2xl transition-all duration-300">
                 {{ t('common.copied') }}
               </span>
             </div>
           </div>
           <div class="relative">
             <div class="h-[60vh]">
-              <CodeEditor
-                v-model:value="output"
-                language="xml"
-                theme="vs"
-                :options="outOptions"
-                height="100%"
-                width="100%"
-              />
+              <CodeEditor v-model:value="output" language="xml" theme="vs" :options="outOptions" height="100%"
+                width="100%" />
             </div>
           </div>
           <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>

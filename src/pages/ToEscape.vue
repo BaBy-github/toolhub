@@ -27,6 +27,8 @@ let timeoutId: number | null = null
 // 转义设置
 const showEscapeSettings = ref(false)
 const isEscapeMode = ref(true) // true 表示转义模式，false 表示反转义模式
+const isSettingsClickActive = ref(false) // 跟踪点击激活状态
+const isMouseHovering = ref(false) // 跟踪鼠标悬停状态
 const escapeSettings = ref({
   escapeDoubleQuotes: true,
   escapeSingleQuotes: true,
@@ -49,23 +51,37 @@ if (nextInput) {
   }
 }
 
-// 用于跟踪鼠标是否在设置区域内
-let isMouseInSettings = false
+// 用于跟踪关闭定时器
+let closeTimeoutId: number | null = null
 
 // 处理鼠标进入设置区域
 function handleSettingsMouseEnter() {
-  isMouseInSettings = true
-  showEscapeSettings.value = true
+  isMouseHovering.value = true
+  // 清除任何待处理的关闭定时器
+  if (closeTimeoutId) {
+    clearTimeout(closeTimeoutId)
+    closeTimeoutId = null
+  }
+  // 非点击激活状态下，悬停显示设置
+  if (!isSettingsClickActive.value) {
+    showEscapeSettings.value = true
+  }
 }
 
 // 处理鼠标离开设置区域
 function handleSettingsMouseLeave() {
-  isMouseInSettings = false
+  isMouseHovering.value = false
+  // 清除任何待处理的关闭定时器
+  if (closeTimeoutId) {
+    clearTimeout(closeTimeoutId)
+  }
   // 延迟关闭，确保鼠标有足够时间从按钮移动到下拉框
-  setTimeout(() => {
-    if (!isMouseInSettings) {
+  closeTimeoutId = window.setTimeout(() => {
+    // 非点击激活状态下，离开后关闭设置
+    if (!isSettingsClickActive.value) {
       showEscapeSettings.value = false
     }
+    closeTimeoutId = null
   }, 100)
 }
 
@@ -75,6 +91,7 @@ const options = {
   minimap: { enabled: false },
   automaticLayout: true,
   wordWrap: 'off',
+  placeholder: t('home.toEscape.feature'),
 }
 const outOptions = {
   language: 'text',
@@ -151,6 +168,7 @@ watch(input, (newVal, oldVal) => {
 
   // 检测粘贴操作（输入长度突然增加很多）
   if (isFirstPaste.value && newVal.length - oldVal.length > 10) {
+    isSettingsClickActive.value = true
     showEscapeSettings.value = true
     isFirstPaste.value = false
   }
@@ -256,8 +274,9 @@ function goBack() {
                 <button
                   class="p-2 rounded-r-md hover:bg-gray-100 transition-colors cursor-pointer border-l border-gray-200"
                   :title="t('escape.settings')"
-                  @click="showEscapeSettings = !showEscapeSettings"
+                  @click="isSettingsClickActive = !isSettingsClickActive; showEscapeSettings = isSettingsClickActive"
                   @mouseenter="handleSettingsMouseEnter"
+                  @mouseleave="handleSettingsMouseLeave"
                 >
                   <RiSettings3Line size="18px" class="text-gray-600" />
                 </button>

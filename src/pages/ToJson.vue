@@ -70,6 +70,7 @@ const options = {
   theme: 'vs',
   minimap: { enabled: false },
   automaticLayout: true,
+  placeholder: t('home.toJson.feature'),
 }
 const outOptions = {
   language: 'json',

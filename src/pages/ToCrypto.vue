@@ -28,6 +28,8 @@ let timeoutId: number | null = null
 // 加密设置
 const showCryptoSettings = ref(false)
 const isEncryptMode = ref(true) // true 表示加密模式，false 表示解密模式
+const isSettingsClickActive = ref(false) // 跟踪点击激活状态
+const isMouseHovering = ref(false) // 跟踪鼠标悬停状态
 const cryptoSettings = ref({
   algorithm: 'aes-256-cbc' as const,
   key: '',
@@ -44,23 +46,39 @@ if (nextInput) {
   processInput()
 }
 
-// 用于跟踪鼠标是否在设置区域内
-let isMouseInSettings = false
+// 移除不再使用的变量，现在使用 ref 变量跟踪状态
+
+// 用于跟踪关闭定时器
+let closeTimeoutId: number | null = null
 
 // 处理鼠标进入设置区域
 function handleSettingsMouseEnter() {
-  isMouseInSettings = true
-  showCryptoSettings.value = true
+  isMouseHovering.value = true
+  // 清除任何待处理的关闭定时器
+  if (closeTimeoutId) {
+    clearTimeout(closeTimeoutId)
+    closeTimeoutId = null
+  }
+  // 非点击激活状态下，悬停显示设置
+  if (!isSettingsClickActive.value) {
+    showCryptoSettings.value = true
+  }
 }
 
 // 处理鼠标离开设置区域
 function handleSettingsMouseLeave() {
-  isMouseInSettings = false
+  isMouseHovering.value = false
+  // 清除任何待处理的关闭定时器
+  if (closeTimeoutId) {
+    clearTimeout(closeTimeoutId)
+  }
   // 延迟关闭，确保鼠标有足够时间从按钮移动到下拉框
-  setTimeout(() => {
-    if (!isMouseInSettings) {
+  closeTimeoutId = window.setTimeout(() => {
+    // 非点击激活状态下，离开后关闭设置
+    if (!isSettingsClickActive.value) {
       showCryptoSettings.value = false
     }
+    closeTimeoutId = null
   }, 100)
 }
 
@@ -70,6 +88,7 @@ const options = {
   minimap: { enabled: false },
   automaticLayout: true,
   wordWrap: 'off',
+  placeholder: t('home.toCrypto.feature'),
 }
 const outOptions = {
   language: 'text',
@@ -182,6 +201,7 @@ watch(input, (newVal, oldVal) => {
 
   // 检测粘贴操作（输入长度突然增加很多）
   if (isFirstPaste.value && newVal.length - oldVal.length > 10) {
+    isSettingsClickActive.value = true
     showCryptoSettings.value = true
     isFirstPaste.value = false
   }
@@ -280,8 +300,9 @@ function goBack() {
               <div class="relative" ref="settingsContainer">
                 <button
                   class="p-2 rounded-r-md hover:bg-gray-100 transition-colors cursor-pointer border-l border-gray-200"
-                  :title="t('crypto.settings')" @click="showCryptoSettings = !showCryptoSettings"
-                  @mouseenter="handleSettingsMouseEnter">
+                  :title="t('crypto.settings')" @click="isSettingsClickActive = !isSettingsClickActive; showCryptoSettings = isSettingsClickActive"
+                  @mouseenter="handleSettingsMouseEnter"
+                  @mouseleave="handleSettingsMouseLeave">
                   <RiSettings3Line size="18px" class="text-gray-600" />
                 </button>
 

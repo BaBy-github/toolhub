@@ -254,6 +254,7 @@ const inOptions = {
   minimap: { enabled: false },
   automaticLayout: true,
   wordWrap: 'on',
+  placeholder: t('home.toBase64.feature'),
 }
 </script>
 

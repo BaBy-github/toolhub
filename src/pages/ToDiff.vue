@@ -126,11 +126,11 @@ onMounted(() => {
 
     // 确保原始内容编辑器可编辑
     const originalEditor = diffEditor.getOriginalEditor()
-    originalEditor.updateOptions({ readOnly: false, cursorBlinking: 'blink' })
+    originalEditor.updateOptions({ readOnly: false, cursorBlinking: 'blink', placeholder: t('home.toDiff.description') })
 
     // 确保修改后内容编辑器可编辑
     const modifiedEditor = diffEditor.getModifiedEditor()
-    modifiedEditor.updateOptions({ readOnly: false, cursorBlinking: 'blink' })
+    modifiedEditor.updateOptions({ readOnly: false, cursorBlinking: 'blink', placeholder: t('home.toDiff.description') })
 
     // 立即聚焦到原始编辑器，确保可以输入
     originalEditor.focus()
