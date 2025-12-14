@@ -29,7 +29,7 @@ const history = ref<string[]>([''])
 const cursor = ref(0)
 const applying = ref(false)
 const isLoading = ref(true)
-const canUndo = computed(() => cursor.value > 0 && !fileInfo.value)
+const canUndo = computed(() => cursor.value > 0 || fileInfo.value)
 
 const leftWidth = computed(() => `${Math.round(leftRatio.value * 100)}%`)
 const rightWidth = computed(() => `${100 - Math.round(leftRatio.value * 100)}%`)
@@ -194,31 +194,15 @@ function pushHistory(v: string) {
 }
 function undo() {
   applying.value = true
-  if (cursor.value <= 0) {
-    // 确保退回到完全清空状态
-    inputText.value = ''
-    output.value = ''
-    showOutput.value = false
-    cursor.value = 0
-  } else {
-    cursor.value = cursor.value - 1
-    inputText.value = history.value[cursor.value] || ''
-    // 手动更新output和showOutput，确保与inputText一致
-    const trimmed = inputText.value.trim()
-    if (!trimmed) {
-      if (!fileInfo.value) {
-        output.value = ''
-        showOutput.value = false
-      }
-    } else {
-      try {
-        output.value = encodeTextToBase64(trimmed)
-        showOutput.value = true
-      } catch {
-        error.value = t('base64.textEncodeError')
-      }
-    }
-  }
+  // 清空所有状态
+  fileInfo.value = null
+  inputText.value = ''
+  output.value = ''
+  showOutput.value = false
+  error.value = ''
+  // 重置历史记录和光标
+  history.value = ['']
+  cursor.value = 0
   applying.value = false
 }
 
