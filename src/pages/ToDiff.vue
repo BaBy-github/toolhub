@@ -227,6 +227,7 @@ function goBack() {
             <SkeletonLoader />
           </template>
         </div>
+        <div class="p-2 text-sm">&#8203;</div>
       </div>
     </div>
   </PageContainer>

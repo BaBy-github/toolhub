@@ -354,6 +354,7 @@ function goBack() {
             <CodeEditor v-model:value="input" :language="'text'" theme="vs" :options="options" height="100%"
               width="100%" />
           </div>
+          <div class="p-2 text-sm">&#8203;</div>
         </div>
 
         <!-- 分割线 -->
@@ -382,6 +383,7 @@ function goBack() {
               width="100%" />
           </div>
           <div v-if="error" class="border-t p-2 text-sm text-red-600">{{ error }}</div>
+          <div v-else class="p-2 text-sm">&#8203;</div>
         </div>
       </div>
     </template>
