@@ -1,8 +1,47 @@
 <script setup lang="ts">
 import { useTranslation } from 'i18next-vue'
 import { tools } from '@/data/tools'
+import { ref, onMounted } from 'vue'
 
 const { t } = useTranslation()
+
+// 定义ref用于获取DOM元素
+const titleRef = ref<HTMLElement | null>(null)
+
+onMounted(() => {
+  // 动态引入TypewriterJS库
+  Promise.all([
+    import('typewriter-effect/dist/core'),
+    import('grapheme-splitter')
+  ]).then(([TypewriterModule, GraphemeSplitterModule]) => {
+    const Typewriter = TypewriterModule.default
+    const GraphemeSplitter = GraphemeSplitterModule.default
+    
+    // 创建自定义字符串分割器
+    const stringSplitter = (string: string) => {
+      const splitter = new GraphemeSplitter()
+      return splitter.splitGraphemes(string)
+    }
+    
+    // 初始化标题打字机效果
+    if (titleRef.value) {
+      new Typewriter(titleRef.value, {
+        loop: true,
+        delay: 50,
+        deleteSpeed: 30,
+        cursor: '<span style="color: #2563eb; font-weight: bold;">|</span>',
+        stringSplitter
+      })
+      .pauseFor(1000)
+      .typeString('Tool Hub')
+      .pauseFor(2000)
+      .deleteAll()
+      .typeString('2 Hub')
+      .pauseFor(2000)
+      .start()
+    }
+  })
+})
 
 // 颜色值映射
 const colorMap = {
@@ -39,20 +78,20 @@ const getColorValue = (color: string, shade: number) => {
 <template>
   <!-- Hero Section -->
   <section
-    class="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 py-20 sm:py-32"
+    class="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 py-20 sm:py-32 flex items-center"
   >
     <div class="mx-auto max-w-7xl px-6">
-      <div class="flex flex-col items-center text-center">
+      <div class="flex flex-col items-center text-center min-h-[200px] justify-center">
         <div class="mb-8 flex items-center gap-2">
           <h1
-            class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl"
+            class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl min-h-[100px] flex items-center"
           >
-            {{ t('home.title') }}
+            <div ref="titleRef"></div>
           </h1>
         </div>
-        <p class="mx-auto max-w-2xl text-lg leading-8 text-gray-600 dark:text-gray-300 sm:text-xl">
-          {{ t('home.subtitle') }}
-        </p>
+        <div class="mx-auto max-w-2xl text-lg leading-8 text-gray-600 dark:text-gray-300 sm:text-xl min-h-[40px]">
+          Select a tool to get started
+        </div>
       </div>
     </div>
     <!-- Decorative elements -->
