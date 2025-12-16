@@ -69,7 +69,9 @@ export async function importKey(keyStr: string): Promise<CryptoKey> {
     const keyBytes = encoder.encode(keyStr)
     keyBuffer = new ArrayBuffer(32)
     const keyView = new Uint8Array(keyBuffer)
-    keyView.set(new Uint8Array(keyBytes), 0)
+    // 只复制keyBytes的前32个字节，避免offset out of bounds错误
+    const copyLength = Math.min(keyBytes.length, 32)
+    keyView.set(new Uint8Array(keyBytes).subarray(0, copyLength), 0)
   }
 
   return crypto.subtle.importKey('raw', keyBuffer, { name: 'AES-CBC' }, false, [
@@ -90,7 +92,9 @@ export function importIv(ivStr: string): ArrayBuffer {
     const ivBytes = encoder.encode(ivStr)
     const ivBuffer = new ArrayBuffer(16)
     const ivView = new Uint8Array(ivBuffer)
-    ivView.set(new Uint8Array(ivBytes), 0)
+    // 只复制ivBytes的前16个字节，避免offset out of bounds错误
+    const copyLength = Math.min(ivBytes.length, 16)
+    ivView.set(new Uint8Array(ivBytes).subarray(0, copyLength), 0)
     return ivBuffer
   }
 }
