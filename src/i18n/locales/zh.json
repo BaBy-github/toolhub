@@ -94,14 +94,19 @@
     "settings": "加密设置",
     "algorithm": "算法",
     "key": "密钥",
-    "keyPlaceholder": "请输入密钥（32字节）",
+    "keyPlaceholder": "请输入密钥（{{length}}字节）",
     "generateKey": "生成密钥",
     "iv": "初始向量（IV）",
     "ivPlaceholder": "请输入初始向量（16字节）",
     "generateIv": "生成IV",
     "generateKeyAndIv": "生成随机密钥和IV",
     "algorithms": {
-      "aes-256-cbc": "AES-256-CBC"
+      "aes-128-cbc": "AES-128-CBC",
+      "aes-192-cbc": "AES-192-CBC",
+      "aes-256-cbc": "AES-256-CBC",
+      "aes-128-gcm": "AES-128-GCM",
+      "aes-192-gcm": "AES-192-GCM",
+      "aes-256-gcm": "AES-256-GCM"
     }
   },
   "language": {

@@ -31,7 +31,7 @@ const isEncryptMode = ref(true) // true 表示加密模式，false 表示解密�
 const isSettingsClickActive = ref(false) // 跟踪点击激活状态
 const isMouseHovering = ref(false) // 跟踪鼠标悬停状态
 const cryptoSettings = ref({
-  algorithm: 'aes-256-cbc' as const,
+  algorithm: 'aes-256-cbc' as 'aes-128-cbc' | 'aes-192-cbc' | 'aes-256-cbc' | 'aes-128-gcm' | 'aes-192-gcm' | 'aes-256-gcm',
   key: '',
   iv: '',
 })
@@ -101,6 +101,20 @@ const outOptions = {
 
 const leftWidth = computed(() => `${Math.round(leftRatio.value * 100)}%`)
 const rightWidth = computed(() => `${100 - Math.round(leftRatio.value * 100)}%`)
+
+// 根据算法获取密钥长度（字节）
+const getKeyLengthBytes = (algorithm: string): number => {
+  if (algorithm.includes('128')) return 16
+  if (algorithm.includes('192')) return 24
+  if (algorithm.includes('256')) return 32
+  return 32 // 默认256位
+}
+
+// 动态生成密钥占位符
+const keyPlaceholder = computed(() => {
+  const keyLength = getKeyLengthBytes(cryptoSettings.value.algorithm)
+  return t('crypto.keyPlaceholder', { length: keyLength })
+})
 
 let moveHandler: ((e: MouseEvent | TouchEvent) => void) | null = null
 let upHandler: ((e: MouseEvent | TouchEvent) => void) | null = null
@@ -237,7 +251,7 @@ watch(isEncryptMode, () => {
 
 // 生成随机密钥
 async function generateKey() {
-  cryptoSettings.value.key = await generateRandomKey()
+  cryptoSettings.value.key = await generateRandomKey(cryptoSettings.value.algorithm)
 }
 
 // 生成随机IV
@@ -247,7 +261,7 @@ function generateIv() {
 
 // 生成随机密钥和IV
 async function generateKeyAndIv() {
-  cryptoSettings.value.key = await generateRandomKey()
+  cryptoSettings.value.key = await generateRandomKey(cryptoSettings.value.algorithm)
   cryptoSettings.value.iv = generateRandomIv()
 }
 
@@ -323,7 +337,16 @@ function goBack() {
                           }}</label>
                         <select v-model="cryptoSettings.algorithm"
                           class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                          <option value="aes-256-cbc">{{ t('crypto.algorithms.aes-256-cbc') }}</option>
+                          <optgroup label="CBC模式">
+                            <option value="aes-128-cbc">{{ t('crypto.algorithms.aes-128-cbc') }}</option>
+                            <option value="aes-192-cbc">{{ t('crypto.algorithms.aes-192-cbc') }}</option>
+                            <option value="aes-256-cbc">{{ t('crypto.algorithms.aes-256-cbc') }}</option>
+                          </optgroup>
+                          <optgroup label="GCM模式（带认证）">
+                            <option value="aes-128-gcm">{{ t('crypto.algorithms.aes-128-gcm') }}</option>
+                            <option value="aes-192-gcm">{{ t('crypto.algorithms.aes-192-gcm') }}</option>
+                            <option value="aes-256-gcm">{{ t('crypto.algorithms.aes-256-gcm') }}</option>
+                          </optgroup>
                         </select>
                       </div>
 
@@ -339,7 +362,7 @@ function goBack() {
                             <RiRefreshLine size="16px" />
                           </button>
                         </div>
-                        <input v-model="cryptoSettings.key" type="text" :placeholder="t('crypto.keyPlaceholder')"
+                        <input v-model="cryptoSettings.key" type="text" :placeholder="keyPlaceholder"
                           class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                       </div>
 
